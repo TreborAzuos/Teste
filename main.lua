@@ -1,5 +1,3 @@
--- Gerado pelo Editor Visual Lupi. Edite o projeto visual para alterar objetos.
--- Projeto: teste
 require "palette"
 require "sprites"
 
