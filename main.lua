@@ -5,6 +5,9 @@ require "sprites"
 
 local WORLD_WIDTH = 960
 local WORLD_HEIGHT = 270
+local PlayerScore = 0
+local PlayerLives = 3
+local PlayerPortalTarget = nil
 local PlayerActions = {}
 local PlayerActionDraw = nil
 local PlayerAttackDraw = nil
@@ -83,20 +86,24 @@ local function resolveSpriteAsset(assetPath)
 end
 
 local objects = {
-    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, invisible = true, surface = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, invisible = true, surface = true, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 317, y = 99, radius = 18, collision = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 885, y = 176, radius = 18, collision = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 265, y = 120, width = 32, height = 32, collision = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 91, y = 79, width = 16, height = 16, collision = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
 }
 
 local authoredMap1Layer2 = {
@@ -424,6 +431,8 @@ local ProjectMaps = {
 local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
 
+local spriteFrames3 = { resolveSpriteAsset("assets/animations/bird/1.png"), resolveSpriteAsset("assets/animations/bird/2.png"), resolveSpriteAsset("assets/animations/bird/3.png"), resolveSpriteAsset("assets/animations/bird/4.png") }
+
 local function bounds(object)
     if object.kind == "line" then
         return math.min(object.x1, object.x2) - 2, math.min(object.y1, object.y2) - 2, math.max(object.x1, object.x2) + 2, math.max(object.y1, object.y2) + 2
@@ -596,7 +605,7 @@ local function startPlayerAttack()
     PlayerAttack.angle = PlayerFacingAngle
     PlayerAttack.hitTargets = {}
     PlayerAttack.hitbox = nil
-    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[12])
+    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[14])
     PlayerAttack.width = 21
     PlayerAttack.height = 13
     PlayerAttack.directionX = math.cos(math.rad(PlayerAttack.angle))
@@ -614,7 +623,7 @@ local function startPlayerAttack()
     PlayerAttack.traveled = 0
     PlayerAttack.hitbox = { kind = "rect", x = PlayerAttack.x, y = PlayerAttack.y, width = PlayerAttack.width, height = PlayerAttack.height }
     for targetIndex, target in ipairs(objects) do
-        if targetIndex ~= 12 then target.hitByPlayer = false end
+        if targetIndex ~= 14 then target.hitByPlayer = false end
     end
 end
 
@@ -630,14 +639,22 @@ local function updatePlayerAttack()
         local nextHitbox = { kind = "rect", x = nextX, y = nextY, width = PlayerAttack.width, height = PlayerAttack.height }
         local hitTarget = nil
         for targetIndex, target in ipairs(objects) do
-            if targetIndex ~= 12 and target.collision and overlaps(nextHitbox, target) then
+            if targetIndex ~= 14 and target.collision and overlaps(nextHitbox, target) then
                 hitTarget = targetIndex
                 break
             end
         end
         if hitTarget then
             PlayerAttack.hitTargets[hitTarget] = true
-            objects[hitTarget].hitByPlayer = true
+            if objects[hitTarget].interaction == "enemy" then
+                objects[hitTarget].health = objects[hitTarget].health - 1
+                if objects[hitTarget].health <= 0 then
+                    objects[hitTarget].defeated = true
+                    objects[hitTarget].active = false
+                    objects[hitTarget].collision = false
+                    PlayerScore = PlayerScore + objects[hitTarget].score_value
+                else objects[hitTarget].hitByPlayer = true end
+            else objects[hitTarget].hitByPlayer = true end
             PlayerAttack.active = false
             PlayerAttack.hitbox = nil
             break
@@ -654,6 +671,46 @@ local function updatePlayerAttack()
         stepLeft = stepLeft - step
     end
     if PlayerAttack.active and PlayerAttack.traveled >= 160 then PlayerAttack.active = false; PlayerAttack.hitbox = nil end
+end
+
+local PlayerDamageCooldown = 0
+local PlayerKeys = {}
+local function damagePlayer(amount)
+    if PlayerDamageCooldown > 0 or PlayerLives <= 0 then return end
+    PlayerLives = math.max(0, PlayerLives - amount)
+    PlayerDamageCooldown = 30
+end
+
+local function updatePlayerInteractions()
+    if PlayerDamageCooldown > 0 then PlayerDamageCooldown = PlayerDamageCooldown - 1 end
+    if PlayerLives <= 0 then return end
+    local player = objects[14]
+    for targetIndex, target in ipairs(objects) do
+        if targetIndex ~= 14 and target.active and target.collision and overlaps(player, target) then
+            if target.interaction == "collectible" then
+                target.active = false; target.collision = false
+                PlayerScore = PlayerScore + target.score_value
+                PlayerLives = PlayerLives + target.life_bonus
+            elseif target.interaction == "key" then
+                target.active = false; target.collision = false
+                PlayerKeys[target.key_id] = true
+            elseif target.interaction == "hazard" or target.interaction == "enemy" then
+                damagePlayer(target.life_damage)
+            elseif target.interaction == "door" or target.interaction == "portal" then
+                local hasRequiredKey = target.required_key_id == "" or PlayerKeys[target.required_key_id]
+                if hasRequiredKey then
+                    if target.target_map_id == "" or target.target_map_id == ActiveMapId then
+                        player.x, player.y = target.target_x, target.target_y
+                        cameraX, cameraY = 0, 0
+                        cameraLockX, cameraLockY = 0, 0
+                        cameraPreviousX, cameraPreviousY = nil, nil
+                    elseif ProjectMaps[target.target_map_id] then
+                        PlayerPortalTarget = target.target_map_id
+                    end
+                end
+            end
+        end
+    end
 end
 
 function loop(frame)
@@ -737,32 +794,33 @@ function loop(frame)
     if PlayerActions.moveLeft and PlayerActions.moveUp then PlayerFacingAngle = 225 elseif PlayerActions.moveRight and PlayerActions.moveUp then PlayerFacingAngle = 315 elseif PlayerActions.moveLeft then PlayerFacingAngle = 180 elseif PlayerActions.moveRight then PlayerFacingAngle = 0 elseif PlayerActions.moveUp then PlayerFacingAngle = 270 end
     PlayerFacingLeft = math.cos(math.rad(PlayerFacingAngle)) < -0.001
     local playerDx = 0
-    if PlayerActions.moveLeft then playerDx = playerDx - objects[12].speed end
-    if PlayerActions.moveRight then playerDx = playerDx + objects[12].speed end
-    local playerLeft, _, _, playerRight = bounds(objects[12])
+    if PlayerActions.moveLeft then playerDx = playerDx - objects[14].speed end
+    if PlayerActions.moveRight then playerDx = playerDx + objects[14].speed end
+    local playerLeft, _, _, playerRight = bounds(objects[14])
     if playerDx < 0 then playerDx = math.max(playerDx, -playerLeft)
     elseif playerDx > 0 then playerDx = math.min(playerDx, WORLD_WIDTH - playerRight) end
-    move_object(12, playerDx, 0)
-    objects[12].vy = math.min(objects[12].vy + objects[12].gravity_force, 12)
-    local playerRemainingY = objects[12].vy
+    move_object(14, playerDx, 0)
+    objects[14].vy = math.min(objects[14].vy + objects[14].gravity_force, 12)
+    local playerRemainingY = objects[14].vy
     local playerGrounded = false
     while math.abs(playerRemainingY) > 0.001 do
         local playerStepY = playerRemainingY > 0 and math.min(1, playerRemainingY) or math.max(-1, playerRemainingY)
-        local playerBeforeY = object_y(12)
-        move_object(12, 0, playerStepY)
-        if object_y(12) == playerBeforeY then
+        local playerBeforeY = object_y(14)
+        move_object(14, 0, playerStepY)
+        if object_y(14) == playerBeforeY then
             playerGrounded = playerRemainingY > 0
-            objects[12].vy = 0
+            objects[14].vy = 0
             break
         end
         playerRemainingY = playerRemainingY - playerStepY
     end
-    if PlayerActions.jump and playerGrounded then objects[12].vy = -objects[12].jump_force end
+    if PlayerActions.jump and playerGrounded then objects[14].vy = -objects[14].jump_force end
     if PlayerActions.attack then startPlayerAttack() end
     updatePlayerAttack()
+    updatePlayerInteractions()
     PlayerActionDraw = nil
     PlayerAttackDraw = nil
-    if objects[12].vy < 0 then
+    if objects[14].vy < 0 then
         PlayerActionDraw = nil
     elseif PlayerActions.moveLeft then
         PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
@@ -771,7 +829,7 @@ function loop(frame)
     end
     if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[((math.floor((PlayerAttack.frame - 1) / 8) % 8) + 1)], x, y, PlayerAttack.direction < 0, false) end end
 
-    local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[12])
+    local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[14])
     local targetCenterX = (targetLeft + targetRight) / 2
     local targetCenterY = (targetTop + targetBottom) / 2
     local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
@@ -800,19 +858,26 @@ function loop(frame)
     if ActiveMap then ActiveMap.update(frame) end
 
     ui.map(authoredMap1Layer1)
-    if not objects[1].invisible then ui.rectfill(objects[1].x, objects[1].y, objects[1].x + objects[1].width, objects[1].y + objects[1].height, objects[1].color) end
-    if not objects[3].invisible then ui.rectfill(objects[3].x, objects[3].y, objects[3].x + objects[3].width, objects[3].y + objects[3].height, objects[3].color) end
-    if not objects[4].invisible then ui.trisfill(objects[4].x + objects[4].width / 2, objects[4].y, objects[4].x + objects[4].width, objects[4].y + objects[4].height, objects[4].x, objects[4].y + objects[4].height, objects[4].color) end
-    if not objects[5].invisible then ui.rectfill(objects[5].x, objects[5].y, objects[5].x + objects[5].width, objects[5].y + objects[5].height, objects[5].color) end
-    if not objects[6].invisible then ui.rectfill(objects[6].x, objects[6].y, objects[6].x + objects[6].width, objects[6].y + objects[6].height, objects[6].color) end
-    if not objects[8].invisible then ui.circfill(objects[8].x + objects[8].radius, objects[8].y + objects[8].radius, objects[8].radius, objects[8].color) end
-    if not objects[10].invisible then ui.rectfill(objects[10].x, objects[10].y, objects[10].x + objects[10].width, objects[10].y + objects[10].height, objects[10].color) end
+    if objects[1].active and not objects[1].invisible then ui.rectfill(objects[1].x, objects[1].y, objects[1].x + objects[1].width, objects[1].y + objects[1].height, objects[1].color) end
+    if objects[3].active and not objects[3].invisible then ui.rectfill(objects[3].x, objects[3].y, objects[3].x + objects[3].width, objects[3].y + objects[3].height, objects[3].color) end
+    if objects[4].active and not objects[4].invisible then ui.trisfill(objects[4].x + objects[4].width / 2, objects[4].y, objects[4].x + objects[4].width, objects[4].y + objects[4].height, objects[4].x, objects[4].y + objects[4].height, objects[4].color) end
+    if objects[5].active and not objects[5].invisible then ui.rectfill(objects[5].x, objects[5].y, objects[5].x + objects[5].width, objects[5].y + objects[5].height, objects[5].color) end
+    if objects[6].active and not objects[6].invisible then ui.rectfill(objects[6].x, objects[6].y, objects[6].x + objects[6].width, objects[6].y + objects[6].height, objects[6].color) end
+    if objects[8].active and not objects[8].invisible then ui.circfill(objects[8].x + objects[8].radius, objects[8].y + objects[8].radius, objects[8].radius, objects[8].color) end
+    if objects[10].active and not objects[10].invisible then ui.rectfill(objects[10].x, objects[10].y, objects[10].x + objects[10].width, objects[10].y + objects[10].height, objects[10].color) end
     ui.map(authoredMap1Layer2)
-    if not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
-    if not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
+    if objects[7].active and not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
+    if objects[9].active and not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
     ui.spr(resolveSpriteAsset("assets/created/grassblock.png"), 318, 137, false, false)
     ui.map(authoredMap1Layer3)
     ui.map(authoredMap1Layer4)
-    if PlayerActionDraw then PlayerActionDraw(objects[12].x, objects[12].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[12].x, objects[12].y, PlayerFacingLeft, false) end
+    if objects[11].active and not objects[11].invisible then ui.circfill(objects[11].x + objects[11].radius, objects[11].y + objects[11].radius, objects[11].radius, objects[11].color) end
+    if objects[12].active and not objects[12].invisible then ui.circfill(objects[12].x + objects[12].radius, objects[12].y + objects[12].radius, objects[12].radius, objects[12].color) end
+    if PlayerActionDraw then PlayerActionDraw(objects[14].x, objects[14].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[14].x, objects[14].y, PlayerFacingLeft, false) end
     if PlayerAttack.active and PlayerAttackDraw and PlayerAttack.hitbox then PlayerAttackDraw(PlayerAttack.x, PlayerAttack.y) end
+    if objects[15].active then ui.spr(spriteFrames3[((math.floor(frame / 8) % #spriteFrames3) + 1)], 265, 120, false, false) end
+    if objects[16].active then ui.tile(resolveSpriteAsset("assets/prepared/wtt.png"), 68, 91, 79, false, false) end
+    ui.camera(0, 0)
+    ui.print("Pontos: " .. tostring(PlayerScore), 8, 8, ASSET_PALETTE_SIZE + 7)
+    ui.print("Vidas: " .. tostring(PlayerLives), 8, 24, ASSET_PALETTE_SIZE + 7)
 end
