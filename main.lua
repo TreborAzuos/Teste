@@ -397,8 +397,6 @@ local ProjectMaps = {
 local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
 
-local spriteFrames2 = { resolveSpriteAsset("assets/animations/bird/1.png"), resolveSpriteAsset("assets/animations/bird/2.png"), resolveSpriteAsset("assets/animations/bird/3.png"), resolveSpriteAsset("assets/animations/bird/4.png") }
-
 local function bounds(object)
     if object.kind == "line" then
         return math.min(object.x1, object.x2) - 2, math.min(object.y1, object.y2) - 2, math.max(object.x1, object.x2) + 2, math.max(object.y1, object.y2) + 2
@@ -693,7 +691,4 @@ function loop(frame)
     ui.map(authoredMap1Layer2)
     if not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
     if not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
-    ui.tile(resolveSpriteAsset("assets/prepared/Pan_01-Sheet-tiles.png"), ({ 0, 1, 2, 3 })[((frame // 8) % 4) + 1], 878, 61, false, false)
-    ui.spr(spriteFrames2[((frame // 8) % #spriteFrames2) + 1], 262, 120, false, false)
-    ui.spr(resolveSpriteAsset("assets/created/Grass-block.png"), 878, 94, false, false)
 end
