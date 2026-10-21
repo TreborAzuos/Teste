@@ -736,29 +736,14 @@ function loop(frame)
     local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[12])
     local targetCenterX = (targetLeft + targetRight) / 2
     local targetCenterY = (targetTop + targetBottom) / 2
-    local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
-    local directionY = cameraPreviousY and targetCenterY - cameraPreviousY or 0
-    cameraPreviousX, cameraPreviousY = targetCenterX, targetCenterY
     local margin = 16
-    if cameraLockX == 1 then
-        if targetCenterX > cameraX + margin or directionX < 0 then cameraLockX = 0 end
-    elseif cameraLockX == -1 then
-        if targetCenterX < cameraX + 480 - margin or directionX > 0 then cameraLockX = 0 end
-    end
-    if cameraLockY == 1 then
-        if targetCenterY > cameraY + margin or directionY < 0 then cameraLockY = 0 end
-    elseif cameraLockY == -1 then
-        if targetCenterY < cameraY + 270 - margin or directionY > 0 then cameraLockY = 0 end
-    end
-    if cameraLockX == 0 then
-        if targetCenterX < cameraX + margin and cameraX > 0 then cameraX = math.max(0, cameraX - 480); cameraLockX = -1
-        elseif targetCenterX > cameraX + 480 - margin and cameraX < WORLD_WIDTH - 480 then cameraX = math.min(WORLD_WIDTH - 480, cameraX + 480); cameraLockX = 1 end
-    end
-    if cameraLockY == 0 then
-        if targetCenterY < cameraY + margin and cameraY > 0 then cameraY = math.max(0, cameraY - 270); cameraLockY = -1
-        elseif targetCenterY > cameraY + 270 - margin and cameraY < WORLD_HEIGHT - 270 then cameraY = math.min(WORLD_HEIGHT - 270, cameraY + 270); cameraLockY = 1 end
-    end
-    ui.camera(cameraX, cameraY)
+    local maxCameraX = math.max(0, WORLD_WIDTH - 480)
+    local maxCameraY = math.max(0, WORLD_HEIGHT - 270)
+    if targetCenterX < cameraX + margin then cameraX = math.max(0, targetCenterX - margin)
+    elseif targetCenterX > cameraX + 480 - margin then cameraX = math.min(maxCameraX, targetCenterX - (480 - margin)) end
+    if targetCenterY < cameraY + margin then cameraY = math.max(0, targetCenterY - margin)
+    elseif targetCenterY > cameraY + 270 - margin then cameraY = math.min(maxCameraY, targetCenterY - (270 - margin)) end
+    ui.camera(math.floor(cameraX), math.floor(cameraY))
     if ActiveMap then ActiveMap.update(frame) end
 
     ui.map(authoredMap1Layer1)
