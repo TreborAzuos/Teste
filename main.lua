@@ -9,7 +9,8 @@ local PlayerActions = {}
 local PlayerActionDraw = nil
 local PlayerAttackDraw = nil
 local PlayerFacingLeft = false
-local PlayerAttack = { active = false, remaining = 0, frame = 0, direction = 1, hitbox = nil, hitTargets = {}, x = 0, y = 0 }
+local PlayerFacingAngle = false and 180 or 0
+local PlayerAttack = { active = false, remaining = 0, frame = 0, direction = 1, directionX = 1, directionY = 0, angle = 0, hitbox = nil, hitTargets = {}, x = 0, y = 0, traveled = 0, width = 8, height = 8 }
 local cameraX, cameraY = 0, 0
 local cameraLockX, cameraLockY = 0, 0
 local cameraPreviousX, cameraPreviousY = nil, nil
@@ -589,34 +590,70 @@ end
 
 local function startPlayerAttack()
     PlayerAttack.active = true
-    PlayerAttack.remaining = 64
+    PlayerAttack.remaining = 0
     PlayerAttack.frame = 0
     PlayerAttack.direction = PlayerFacingLeft and -1 or 1
+    PlayerAttack.angle = PlayerFacingAngle
     PlayerAttack.hitTargets = {}
+    PlayerAttack.hitbox = nil
+    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[12])
+    PlayerAttack.width = 21
+    PlayerAttack.height = 13
+    PlayerAttack.directionX = math.cos(math.rad(PlayerAttack.angle))
+    PlayerAttack.directionY = math.sin(math.rad(PlayerAttack.angle))
+    PlayerAttack.direction = PlayerAttack.directionX < 0 and -1 or 1
+    local playerCenterX, playerCenterY = (playerX1 + playerX2) / 2, (playerY1 + playerY2) / 2
+    local halfWidth, halfHeight = (playerX2 - playerX1) / 2, (playerY2 - playerY1) / 2
+    local edgeX = math.abs(PlayerAttack.directionX) > 0.001 and halfWidth / math.abs(PlayerAttack.directionX) or math.huge
+    local edgeY = math.abs(PlayerAttack.directionY) > 0.001 and halfHeight / math.abs(PlayerAttack.directionY) or math.huge
+    local spawnDistance = math.min(edgeX, edgeY) + math.max(PlayerAttack.width, PlayerAttack.height) / 2
+    local projectileCenterX = playerCenterX + PlayerAttack.directionX * spawnDistance
+    local projectileCenterY = playerCenterY + PlayerAttack.directionY * spawnDistance
+    PlayerAttack.x = projectileCenterX - PlayerAttack.width / 2
+    PlayerAttack.y = projectileCenterY - PlayerAttack.height / 2
+    PlayerAttack.traveled = 0
+    PlayerAttack.hitbox = { kind = "rect", x = PlayerAttack.x, y = PlayerAttack.y, width = PlayerAttack.width, height = PlayerAttack.height }
     for targetIndex, target in ipairs(objects) do
         if targetIndex ~= 12 then target.hitByPlayer = false end
     end
 end
 
+
 local function updatePlayerAttack()
     if not PlayerAttack.active then PlayerAttack.hitbox = nil; return end
-    if PlayerAttack.remaining <= 0 then PlayerAttack.active = false; PlayerAttack.hitbox = nil; return end
     PlayerAttack.frame = PlayerAttack.frame + 1
-    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[12])
-    local reach = math.max(8, playerX2 - playerX1)
-    local attackHeight = math.max(8, playerY2 - playerY1)
-    local attackX = PlayerAttack.direction < 0 and (playerX1 - reach) or playerX2
-    local hitbox = { kind = "rect", x = attackX, y = playerY1, width = reach, height = attackHeight }
-    PlayerAttack.hitbox = hitbox
-    PlayerAttack.x = attackX
-    PlayerAttack.y = playerY2 - 13
-    for targetIndex, target in ipairs(objects) do
-        if targetIndex ~= 12 and target.collision and overlaps(hitbox, target) and not PlayerAttack.hitTargets[targetIndex] then
-            PlayerAttack.hitTargets[targetIndex] = true
-            target.hitByPlayer = true
+    local stepLeft = math.min(4, 160 - PlayerAttack.traveled)
+    while stepLeft > 0.001 and PlayerAttack.active do
+        local step = math.min(1, stepLeft)
+        local nextX = PlayerAttack.x + PlayerAttack.directionX * step
+        local nextY = PlayerAttack.y + PlayerAttack.directionY * step
+        local nextHitbox = { kind = "rect", x = nextX, y = nextY, width = PlayerAttack.width, height = PlayerAttack.height }
+        local hitTarget = nil
+        for targetIndex, target in ipairs(objects) do
+            if targetIndex ~= 12 and target.collision and overlaps(nextHitbox, target) then
+                hitTarget = targetIndex
+                break
+            end
         end
+        if hitTarget then
+            PlayerAttack.hitTargets[hitTarget] = true
+            objects[hitTarget].hitByPlayer = true
+            PlayerAttack.active = false
+            PlayerAttack.hitbox = nil
+            break
+        end
+        if nextX < 0 or nextY < 0 or nextX + PlayerAttack.width > WORLD_WIDTH or nextY + PlayerAttack.height > WORLD_HEIGHT then
+            PlayerAttack.active = false
+            PlayerAttack.hitbox = nil
+            break
+        end
+        PlayerAttack.x = nextX
+        PlayerAttack.y = nextY
+        PlayerAttack.traveled = PlayerAttack.traveled + step
+        PlayerAttack.hitbox = { kind = "rect", x = PlayerAttack.x, y = PlayerAttack.y, width = PlayerAttack.width, height = PlayerAttack.height }
+        stepLeft = stepLeft - step
     end
-    PlayerAttack.remaining = PlayerAttack.remaining - 1
+    if PlayerAttack.active and PlayerAttack.traveled >= 160 then PlayerAttack.active = false; PlayerAttack.hitbox = nil end
 end
 
 function loop(frame)
@@ -697,7 +734,8 @@ function loop(frame)
     PlayerActions.moveRight = ui.btn(RIGHT)
     PlayerActions.jump = ui.btnp(BTN_Z)
     PlayerActions.attack = ui.btnp(BTN_X)
-    if PlayerActions.moveLeft then PlayerFacingLeft = true elseif PlayerActions.moveRight then PlayerFacingLeft = false end
+    if PlayerActions.moveLeft and PlayerActions.moveUp then PlayerFacingAngle = 225 elseif PlayerActions.moveRight and PlayerActions.moveUp then PlayerFacingAngle = 315 elseif PlayerActions.moveLeft then PlayerFacingAngle = 180 elseif PlayerActions.moveRight then PlayerFacingAngle = 0 elseif PlayerActions.moveUp then PlayerFacingAngle = 270 end
+    PlayerFacingLeft = math.cos(math.rad(PlayerFacingAngle)) < -0.001
     local playerDx = 0
     if PlayerActions.moveLeft then playerDx = playerDx - objects[12].speed end
     if PlayerActions.moveRight then playerDx = playerDx + objects[12].speed end
@@ -731,19 +769,34 @@ function loop(frame)
     elseif PlayerActions.moveRight then
         PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
     end
-    if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[math.min((math.floor((PlayerAttack.frame - 1) / 8)) + 1, 8)], x, y, PlayerAttack.direction < 0, false) end end
+    if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[((math.floor((PlayerAttack.frame - 1) / 8) % 8) + 1)], x, y, PlayerAttack.direction < 0, false) end end
 
     local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[12])
     local targetCenterX = (targetLeft + targetRight) / 2
     local targetCenterY = (targetTop + targetBottom) / 2
-    local margin = 16
-    local maxCameraX = math.max(0, WORLD_WIDTH - 480)
-    local maxCameraY = math.max(0, WORLD_HEIGHT - 270)
-    if targetCenterX < cameraX - margin then cameraX = math.max(0, cameraX - 480)
-    elseif targetCenterX > cameraX + 480 + margin then cameraX = math.min(maxCameraX, cameraX + 480) end
-    if targetCenterY < cameraY - margin then cameraY = math.max(0, cameraY - 270)
-    elseif targetCenterY > cameraY + 270 + margin then cameraY = math.min(maxCameraY, cameraY + 270) end
-    ui.camera(math.floor(cameraX), math.floor(cameraY))
+    local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
+    local directionY = cameraPreviousY and targetCenterY - cameraPreviousY or 0
+    cameraPreviousX, cameraPreviousY = targetCenterX, targetCenterY
+    local margin = 12
+    if cameraLockX == 1 then
+        if targetCenterX > cameraX + margin or directionX < 0 then cameraLockX = 0 end
+    elseif cameraLockX == -1 then
+        if targetCenterX < cameraX + 480 - margin or directionX > 0 then cameraLockX = 0 end
+    end
+    if cameraLockY == 1 then
+        if targetCenterY > cameraY + margin or directionY < 0 then cameraLockY = 0 end
+    elseif cameraLockY == -1 then
+        if targetCenterY < cameraY + 270 - margin or directionY > 0 then cameraLockY = 0 end
+    end
+    if cameraLockX == 0 then
+        if targetCenterX < cameraX + margin and cameraX > 0 then cameraX = math.max(0, cameraX - 480); cameraLockX = -1
+        elseif targetCenterX > cameraX + 480 - margin and cameraX < WORLD_WIDTH - 480 then cameraX = math.min(WORLD_WIDTH - 480, cameraX + 480); cameraLockX = 1 end
+    end
+    if cameraLockY == 0 then
+        if targetCenterY < cameraY + margin and cameraY > 0 then cameraY = math.max(0, cameraY - 270); cameraLockY = -1
+        elseif targetCenterY > cameraY + 270 - margin and cameraY < WORLD_HEIGHT - 270 then cameraY = math.min(WORLD_HEIGHT - 270, cameraY + 270); cameraLockY = 1 end
+    end
+    ui.camera(cameraX, cameraY)
     if ActiveMap then ActiveMap.update(frame) end
 
     ui.map(authoredMap1Layer1)
