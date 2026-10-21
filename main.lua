@@ -708,7 +708,7 @@ function loop(frame)
     ui.map(authoredMap1Layer2)
     if not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
     if not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
-    ui.spr(resolveSpriteAsset("assets/created/grass-block.png"), 318, 137, false, false)
+    ui.spr(resolveSpriteAsset("assets/created/grassblock.png"), 318, 137, false, false)
     ui.map(authoredMap1Layer3)
     ui.map(authoredMap1Layer4)
 end
