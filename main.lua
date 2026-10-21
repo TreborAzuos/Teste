@@ -29,9 +29,10 @@ local function resolveSpriteAsset(assetPath)
     local function lookup(root, relativePath)
         local current = root
         for segment in string.gmatch(relativePath, "[^/]+") do
-            if string.sub(segment, -4):lower() == ".png" then segment = string.sub(segment, 1, -5) end
+            local key = segment
+            if string.sub(key, -4):lower() == ".png" then key = string.sub(key, 1, -5) end
             if type(current) ~= "table" then return nil end
-            current = current[segment]
+            current = current[key]
         end
         if type(current) == "table" and current.path then return current end
         return nil
