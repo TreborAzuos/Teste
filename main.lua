@@ -25,6 +25,45 @@ local ProjectPalette = {
 local ASSET_PALETTE_SIZE = #Palette
 if ASSET_PALETTE_SIZE + #ProjectPalette > 256 then error("A paleta dos sprites e as cores do editor ultrapassam 256 índices.") end
 
+local function resolveSpriteAsset(assetPath)
+    local function lookup(root, relativePath)
+        local current = root
+        for segment in string.gmatch(relativePath, "[^/]+") do
+            if string.sub(segment, -4):lower() == ".png" then segment = string.sub(segment, 1, -5) end
+            if type(current) ~= "table" then return nil end
+            current = current[segment]
+        end
+        if type(current) == "table" and current.path then return current end
+        return nil
+    end
+    local sprite = lookup(Sprites, assetPath)
+    if sprite then return sprite end
+    if string.sub(assetPath, 1, 7) == "assets/" then
+        sprite = lookup(Sprites, string.sub(assetPath, 8))
+        if sprite then return sprite end
+    end
+    local baseName = string.match(assetPath, "([^/]+)%.png$") or string.match(assetPath, "([^/]+)$")
+    if Sprites.find then
+        local ok, found = pcall(Sprites.find, baseName)
+        if ok and found then return found end
+    end
+    local function search(node, seen)
+        if type(node) ~= "table" or seen[node] then return nil end
+        seen[node] = true
+        if node.path and (node.name == baseName or string.match(node.path, "([^/]+)$") == baseName or string.match(node.path, "([^/]+)%.png$") == baseName) then return node end
+        local direct = node[baseName]
+        if type(direct) == "table" and direct.path then return direct end
+        for _, child in pairs(node) do
+            local found = search(child, seen)
+            if found then return found end
+        end
+        return nil
+    end
+    sprite = search(Sprites, {})
+    if sprite then return sprite end
+    error("Asset de sprite não encontrado: " .. assetPath)
+end
+
 local objects = {
     { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
     { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, invisible = true, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
@@ -42,11 +81,11 @@ local objects = {
 local authoredMap1Layer2 = {
   metadata = { width = 60, height = 17, tile_size = 16 },
   tilesets = {
-    ["leaves"] = Sprites.assets.leaves,
-    ["tilemap.sunny.1"] = Sprites.assets["tilemap.sunny.1"],
-    ["world_tileset-tiles"] = Sprites.assets.prepared["world_tileset-tiles"],
+    ["lupi_editor_bde02bdf_e6c6_4aa9_ae60_ea12556a79ca"] = "lupi_editor_bde02bdf_e6c6_4aa9_ae60_ea12556a79ca",
+    ["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = "lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b",
+    ["lupi_editor_bc0489d0_080d_4d8a_a20b_bf8d369b99c7"] = "lupi_editor_bc0489d0_080d_4d8a_a20b_bf8d369b99c7",
   },
-  ["leaves"] = {
+  ["lupi_editor_bde02bdf_e6c6_4aa9_ae60_ea12556a79ca"] = {
       [91] = 0,
       [31] = 0,
       [151] = 0,
@@ -93,7 +132,7 @@ local authoredMap1Layer2 = {
       [339] = 9,
       [279] = 9,
   },
-  ["tilemap.sunny.1"] = {
+  ["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = {
       [167] = 30,
       [227] = 30,
       [168] = 31,
@@ -128,7 +167,7 @@ local authoredMap1Layer2 = {
       [646] = 38,
       [706] = 38,
   },
-  ["world_tileset-tiles"] = {
+  ["lupi_editor_bc0489d0_080d_4d8a_a20b_bf8d369b99c7"] = {
       [484] = 0,
       [485] = 0,
       [486] = 0,
@@ -242,9 +281,9 @@ local authoredMap1Layer2 = {
 local authoredMap1Layer1 = {
   metadata = { width = 60, height = 17, tile_size = 16 },
   tilesets = {
-    ["tilemap.sunny.1"] = Sprites.assets["tilemap.sunny.1"],
+    ["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = "lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b",
   },
-  ["tilemap.sunny.1"] = {
+  ["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = {
       [169] = 1062,
       [229] = 1062,
       [289] = 1062,
@@ -259,97 +298,101 @@ local authoredMap1Layer1 = {
       [766] = 38,
   },
 }
-local authoredMap1Layer2Animation1 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation2 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation3 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation4 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation5 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation6 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation7 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation8 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation9 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation10 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation11 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation12 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation13 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation14 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation15 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation16 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation17 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation18 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation19 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation20 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation21 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation22 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation23 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation24 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation25 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation26 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation27 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation28 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation29 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation30 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation31 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation32 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer2Animation33 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation34 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation35 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation36 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation37 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation38 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation39 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation40 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation41 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation42 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation43 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation44 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
-local authoredMap1Layer1Animation45 = { Sprites.assets["tilemap.sunny.1"], Sprites.assets["tilemap.sunny.2"], Sprites.assets["tilemap.sunny.3"], Sprites.assets["tilemap.sunny.4"] }
+local authoredMap1Layer2Animation1 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation2 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation3 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation4 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation5 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation6 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation7 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation8 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation9 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation10 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation11 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation12 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation13 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation14 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation15 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation16 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation17 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation18 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation19 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation20 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation21 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation22 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation23 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation24 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation25 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation26 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation27 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation28 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation29 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation30 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation31 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation32 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer2Animation33 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation34 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation35 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation36 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation37 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation38 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation39 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation40 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation41 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation42 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation43 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation44 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
+local authoredMap1Layer1Animation45 = { "assets/tilemap.sunny.1.png", "assets/tilemap.sunny.2.png", "assets/tilemap.sunny.3.png", "assets/tilemap.sunny.4.png" }
 local function authoredMap1Update(frame)
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation1[((frame // 8) % #authoredMap1Layer2Animation1) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation2[((frame // 8) % #authoredMap1Layer2Animation2) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation3[((frame // 8) % #authoredMap1Layer2Animation3) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation4[((frame // 8) % #authoredMap1Layer2Animation4) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation5[((frame // 8) % #authoredMap1Layer2Animation5) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation6[((frame // 8) % #authoredMap1Layer2Animation6) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation7[((frame // 8) % #authoredMap1Layer2Animation7) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation8[((frame // 8) % #authoredMap1Layer2Animation8) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation9[((frame // 8) % #authoredMap1Layer2Animation9) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation10[((frame // 8) % #authoredMap1Layer2Animation10) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation11[((frame // 8) % #authoredMap1Layer2Animation11) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation12[((frame // 8) % #authoredMap1Layer2Animation12) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation13[((frame // 8) % #authoredMap1Layer2Animation13) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation14[((frame // 8) % #authoredMap1Layer2Animation14) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation15[((frame // 8) % #authoredMap1Layer2Animation15) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation16[((frame // 8) % #authoredMap1Layer2Animation16) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation17[((frame // 8) % #authoredMap1Layer2Animation17) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation18[((frame // 8) % #authoredMap1Layer2Animation18) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation19[((frame // 8) % #authoredMap1Layer2Animation19) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation20[((frame // 8) % #authoredMap1Layer2Animation20) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation21[((frame // 8) % #authoredMap1Layer2Animation21) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation22[((frame // 8) % #authoredMap1Layer2Animation22) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation23[((frame // 8) % #authoredMap1Layer2Animation23) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation24[((frame // 8) % #authoredMap1Layer2Animation24) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation25[((frame // 8) % #authoredMap1Layer2Animation25) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation26[((frame // 8) % #authoredMap1Layer2Animation26) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation27[((frame // 8) % #authoredMap1Layer2Animation27) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation28[((frame // 8) % #authoredMap1Layer2Animation28) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation29[((frame // 8) % #authoredMap1Layer2Animation29) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation30[((frame // 8) % #authoredMap1Layer2Animation30) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation31[((frame // 8) % #authoredMap1Layer2Animation31) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation32[((frame // 8) % #authoredMap1Layer2Animation32) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation33[((frame // 8) % #authoredMap1Layer2Animation33) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation34[((frame // 8) % #authoredMap1Layer1Animation34) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation35[((frame // 8) % #authoredMap1Layer1Animation35) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation36[((frame // 8) % #authoredMap1Layer1Animation36) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation37[((frame // 8) % #authoredMap1Layer1Animation37) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation38[((frame // 8) % #authoredMap1Layer1Animation38) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation39[((frame // 8) % #authoredMap1Layer1Animation39) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation40[((frame // 8) % #authoredMap1Layer1Animation40) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation41[((frame // 8) % #authoredMap1Layer1Animation41) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation42[((frame // 8) % #authoredMap1Layer1Animation42) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation43[((frame // 8) % #authoredMap1Layer1Animation43) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation44[((frame // 8) % #authoredMap1Layer1Animation44) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((frame // 8) % #authoredMap1Layer1Animation45) + 1]
+        Sprites["lupi_editor_bde02bdf_e6c6_4aa9_ae60_ea12556a79ca"] = resolveSpriteAsset("assets/leaves.png")
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset("assets/tilemap.sunny.1.png")
+        Sprites["lupi_editor_bc0489d0_080d_4d8a_a20b_bf8d369b99c7"] = resolveSpriteAsset("assets/prepared/world_tileset-tiles.png")
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation1[((frame // 8) % #authoredMap1Layer2Animation1) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation2[((frame // 8) % #authoredMap1Layer2Animation2) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation3[((frame // 8) % #authoredMap1Layer2Animation3) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation4[((frame // 8) % #authoredMap1Layer2Animation4) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation5[((frame // 8) % #authoredMap1Layer2Animation5) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation6[((frame // 8) % #authoredMap1Layer2Animation6) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation7[((frame // 8) % #authoredMap1Layer2Animation7) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation8[((frame // 8) % #authoredMap1Layer2Animation8) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation9[((frame // 8) % #authoredMap1Layer2Animation9) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation10[((frame // 8) % #authoredMap1Layer2Animation10) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation11[((frame // 8) % #authoredMap1Layer2Animation11) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation12[((frame // 8) % #authoredMap1Layer2Animation12) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation13[((frame // 8) % #authoredMap1Layer2Animation13) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation14[((frame // 8) % #authoredMap1Layer2Animation14) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation15[((frame // 8) % #authoredMap1Layer2Animation15) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation16[((frame // 8) % #authoredMap1Layer2Animation16) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation17[((frame // 8) % #authoredMap1Layer2Animation17) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation18[((frame // 8) % #authoredMap1Layer2Animation18) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation19[((frame // 8) % #authoredMap1Layer2Animation19) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation20[((frame // 8) % #authoredMap1Layer2Animation20) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation21[((frame // 8) % #authoredMap1Layer2Animation21) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation22[((frame // 8) % #authoredMap1Layer2Animation22) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation23[((frame // 8) % #authoredMap1Layer2Animation23) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation24[((frame // 8) % #authoredMap1Layer2Animation24) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation25[((frame // 8) % #authoredMap1Layer2Animation25) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation26[((frame // 8) % #authoredMap1Layer2Animation26) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation27[((frame // 8) % #authoredMap1Layer2Animation27) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation28[((frame // 8) % #authoredMap1Layer2Animation28) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation29[((frame // 8) % #authoredMap1Layer2Animation29) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation30[((frame // 8) % #authoredMap1Layer2Animation30) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation31[((frame // 8) % #authoredMap1Layer2Animation31) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation32[((frame // 8) % #authoredMap1Layer2Animation32) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer2Animation33[((frame // 8) % #authoredMap1Layer2Animation33) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset("assets/tilemap.sunny.1.png")
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation34[((frame // 8) % #authoredMap1Layer1Animation34) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation35[((frame // 8) % #authoredMap1Layer1Animation35) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation36[((frame // 8) % #authoredMap1Layer1Animation36) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation37[((frame // 8) % #authoredMap1Layer1Animation37) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation38[((frame // 8) % #authoredMap1Layer1Animation38) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation39[((frame // 8) % #authoredMap1Layer1Animation39) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation40[((frame // 8) % #authoredMap1Layer1Animation40) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation41[((frame // 8) % #authoredMap1Layer1Animation41) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation42[((frame // 8) % #authoredMap1Layer1Animation42) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation43[((frame // 8) % #authoredMap1Layer1Animation43) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation44[((frame // 8) % #authoredMap1Layer1Animation44) + 1])
+        Sprites["lupi_editor_f02395e7_7c68_46da_9b65_0fbc5abdd11b"] = resolveSpriteAsset(authoredMap1Layer1Animation45[((frame // 8) % #authoredMap1Layer1Animation45) + 1])
 end
 local ProjectMaps = {
   ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2 }, update = authoredMap1Update },
@@ -357,7 +400,7 @@ local ProjectMaps = {
 local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
 
-local spriteFrames2 = { Sprites.assets.animations.bird["1"], Sprites.assets.animations.bird["2"], Sprites.assets.animations.bird["3"], Sprites.assets.animations.bird["4"] }
+local spriteFrames2 = { resolveSpriteAsset("assets/animations/bird/1.png"), resolveSpriteAsset("assets/animations/bird/2.png"), resolveSpriteAsset("assets/animations/bird/3.png"), resolveSpriteAsset("assets/animations/bird/4.png") }
 
 local function bounds(object)
     if object.kind == "line" then
@@ -653,7 +696,7 @@ function loop(frame)
     ui.map(authoredMap1Layer2)
     if not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
     if not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
-    ui.tile(Sprites.assets.prepared["Pan_01-Sheet-tiles"], ({ 0, 1, 2, 3 })[((frame // 8) % 4) + 1], 878, 61, false, false)
+    ui.tile(resolveSpriteAsset("assets/prepared/Pan_01-Sheet-tiles.png"), ({ 0, 1, 2, 3 })[((frame // 8) % 4) + 1], 878, 61, false, false)
     ui.spr(spriteFrames2[((frame // 8) % #spriteFrames2) + 1], 262, 120, false, false)
-    ui.spr(Sprites.assets.created["Grass-block"], 878, 94, false, false)
+    ui.spr(resolveSpriteAsset("assets/created/Grass-block.png"), 878, 94, false, false)
 end
