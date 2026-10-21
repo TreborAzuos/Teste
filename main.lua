@@ -5,6 +5,11 @@ require "sprites"
 
 local WORLD_WIDTH = 960
 local WORLD_HEIGHT = 270
+local PlayerActions = {}
+local PlayerActionDraw = nil
+local PlayerAttackDraw = nil
+local PlayerFacingLeft = false
+local PlayerAttack = { active = false, remaining = 0, frame = 0, direction = 1, hitbox = nil, hitTargets = {}, x = 0, y = 0 }
 local cameraX, cameraY = 0, 0
 local cameraLockX, cameraLockY = 0, 0
 local cameraPreviousX, cameraPreviousY = nil, nil
@@ -26,13 +31,22 @@ local ASSET_PALETTE_SIZE = #Palette
 if ASSET_PALETTE_SIZE + #ProjectPalette > 256 then error("A paleta dos sprites e as cores do editor ultrapassam 256 índices.") end
 
 local function resolveSpriteAsset(assetPath)
+    local function childByName(parent, name)
+        local direct = parent[name]
+        if direct ~= nil then return direct end
+        local wanted = string.lower(name)
+        for key, value in pairs(parent) do
+            if type(key) == "string" and string.lower(key) == wanted then return value end
+        end
+        return nil
+    end
     local function lookup(root, relativePath)
         local current = root
         for segment in string.gmatch(relativePath, "[^/]+") do
             local key = segment
             if string.sub(key, -4):lower() == ".png" then key = string.sub(key, 1, -5) end
             if type(current) ~= "table" then return nil end
-            current = current[key]
+            current = childByName(current, key)
         end
         if type(current) == "table" and current.path then return current end
         return nil
@@ -51,8 +65,10 @@ local function resolveSpriteAsset(assetPath)
     local function search(node, seen)
         if type(node) ~= "table" or seen[node] then return nil end
         seen[node] = true
-        if node.path and (node.name == baseName or string.match(node.path, "([^/]+)$") == baseName or string.match(node.path, "([^/]+)%.png$") == baseName) then return node end
-        local direct = node[baseName]
+        local wanted = string.lower(baseName)
+        local pathName = node.path and (string.match(node.path, "([^/]+)%.png$") or string.match(node.path, "([^/]+)$"))
+        if node.path and ((type(node.name) == "string" and string.lower(node.name) == wanted) or (pathName and string.lower(pathName) == wanted)) then return node end
+        local direct = childByName(node, baseName)
         if type(direct) == "table" and direct.path then return direct end
         for _, child in pairs(node) do
             local found = search(child, seen)
@@ -76,8 +92,8 @@ local objects = {
     { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
     { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
     { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 30, y = 170, width = 29, height = 31, collision = true, invisible = false, surface = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 30, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 7, jump_button = BTN_Z },
     { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, invisible = true, surface = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
     { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, invisible = true, surface = true, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
     { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
 }
@@ -355,51 +371,51 @@ local authoredMap1Layer1Animation43 = { "tilemap.sunny.1", "tilemap.sunny.2", "t
 local authoredMap1Layer1Animation44 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
 local authoredMap1Layer1Animation45 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
 local function authoredMap1Update(frame)
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation1[((frame // 8) % #authoredMap1Layer2Animation1) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation2[((frame // 8) % #authoredMap1Layer2Animation2) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation3[((frame // 8) % #authoredMap1Layer2Animation3) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation4[((frame // 8) % #authoredMap1Layer2Animation4) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation5[((frame // 8) % #authoredMap1Layer2Animation5) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation6[((frame // 8) % #authoredMap1Layer2Animation6) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation7[((frame // 8) % #authoredMap1Layer2Animation7) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation8[((frame // 8) % #authoredMap1Layer2Animation8) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation9[((frame // 8) % #authoredMap1Layer2Animation9) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation10[((frame // 8) % #authoredMap1Layer2Animation10) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation11[((frame // 8) % #authoredMap1Layer2Animation11) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation12[((frame // 8) % #authoredMap1Layer2Animation12) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation13[((frame // 8) % #authoredMap1Layer2Animation13) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation14[((frame // 8) % #authoredMap1Layer2Animation14) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation15[((frame // 8) % #authoredMap1Layer2Animation15) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation16[((frame // 8) % #authoredMap1Layer2Animation16) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation17[((frame // 8) % #authoredMap1Layer2Animation17) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation18[((frame // 8) % #authoredMap1Layer2Animation18) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation19[((frame // 8) % #authoredMap1Layer2Animation19) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation20[((frame // 8) % #authoredMap1Layer2Animation20) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation21[((frame // 8) % #authoredMap1Layer2Animation21) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation22[((frame // 8) % #authoredMap1Layer2Animation22) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation23[((frame // 8) % #authoredMap1Layer2Animation23) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation24[((frame // 8) % #authoredMap1Layer2Animation24) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation25[((frame // 8) % #authoredMap1Layer2Animation25) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation26[((frame // 8) % #authoredMap1Layer2Animation26) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation27[((frame // 8) % #authoredMap1Layer2Animation27) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation28[((frame // 8) % #authoredMap1Layer2Animation28) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation29[((frame // 8) % #authoredMap1Layer2Animation29) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation30[((frame // 8) % #authoredMap1Layer2Animation30) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation31[((frame // 8) % #authoredMap1Layer2Animation31) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation32[((frame // 8) % #authoredMap1Layer2Animation32) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation33[((frame // 8) % #authoredMap1Layer2Animation33) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation34[((frame // 8) % #authoredMap1Layer1Animation34) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation35[((frame // 8) % #authoredMap1Layer1Animation35) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation36[((frame // 8) % #authoredMap1Layer1Animation36) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation37[((frame // 8) % #authoredMap1Layer1Animation37) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation38[((frame // 8) % #authoredMap1Layer1Animation38) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation39[((frame // 8) % #authoredMap1Layer1Animation39) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation40[((frame // 8) % #authoredMap1Layer1Animation40) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation41[((frame // 8) % #authoredMap1Layer1Animation41) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation42[((frame // 8) % #authoredMap1Layer1Animation42) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation43[((frame // 8) % #authoredMap1Layer1Animation43) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation44[((frame // 8) % #authoredMap1Layer1Animation44) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((frame // 8) % #authoredMap1Layer1Animation45) + 1]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation1[((math.floor(frame / 8) % #authoredMap1Layer2Animation1) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation2[((math.floor(frame / 8) % #authoredMap1Layer2Animation2) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation3[((math.floor(frame / 8) % #authoredMap1Layer2Animation3) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation4[((math.floor(frame / 8) % #authoredMap1Layer2Animation4) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation5[((math.floor(frame / 8) % #authoredMap1Layer2Animation5) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation6[((math.floor(frame / 8) % #authoredMap1Layer2Animation6) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation7[((math.floor(frame / 8) % #authoredMap1Layer2Animation7) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation8[((math.floor(frame / 8) % #authoredMap1Layer2Animation8) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation9[((math.floor(frame / 8) % #authoredMap1Layer2Animation9) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation10[((math.floor(frame / 8) % #authoredMap1Layer2Animation10) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation11[((math.floor(frame / 8) % #authoredMap1Layer2Animation11) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation12[((math.floor(frame / 8) % #authoredMap1Layer2Animation12) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation13[((math.floor(frame / 8) % #authoredMap1Layer2Animation13) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation14[((math.floor(frame / 8) % #authoredMap1Layer2Animation14) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation15[((math.floor(frame / 8) % #authoredMap1Layer2Animation15) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation16[((math.floor(frame / 8) % #authoredMap1Layer2Animation16) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation17[((math.floor(frame / 8) % #authoredMap1Layer2Animation17) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation18[((math.floor(frame / 8) % #authoredMap1Layer2Animation18) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation19[((math.floor(frame / 8) % #authoredMap1Layer2Animation19) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation20[((math.floor(frame / 8) % #authoredMap1Layer2Animation20) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation21[((math.floor(frame / 8) % #authoredMap1Layer2Animation21) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation22[((math.floor(frame / 8) % #authoredMap1Layer2Animation22) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation23[((math.floor(frame / 8) % #authoredMap1Layer2Animation23) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation24[((math.floor(frame / 8) % #authoredMap1Layer2Animation24) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation25[((math.floor(frame / 8) % #authoredMap1Layer2Animation25) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation26[((math.floor(frame / 8) % #authoredMap1Layer2Animation26) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation27[((math.floor(frame / 8) % #authoredMap1Layer2Animation27) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation28[((math.floor(frame / 8) % #authoredMap1Layer2Animation28) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation29[((math.floor(frame / 8) % #authoredMap1Layer2Animation29) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation30[((math.floor(frame / 8) % #authoredMap1Layer2Animation30) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation31[((math.floor(frame / 8) % #authoredMap1Layer2Animation31) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation32[((math.floor(frame / 8) % #authoredMap1Layer2Animation32) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation33[((math.floor(frame / 8) % #authoredMap1Layer2Animation33) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation34[((math.floor(frame / 8) % #authoredMap1Layer1Animation34) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation35[((math.floor(frame / 8) % #authoredMap1Layer1Animation35) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation36[((math.floor(frame / 8) % #authoredMap1Layer1Animation36) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation37[((math.floor(frame / 8) % #authoredMap1Layer1Animation37) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation38[((math.floor(frame / 8) % #authoredMap1Layer1Animation38) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation39[((math.floor(frame / 8) % #authoredMap1Layer1Animation39) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation40[((math.floor(frame / 8) % #authoredMap1Layer1Animation40) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation41[((math.floor(frame / 8) % #authoredMap1Layer1Animation41) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation42[((math.floor(frame / 8) % #authoredMap1Layer1Animation42) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation43[((math.floor(frame / 8) % #authoredMap1Layer1Animation43) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation44[((math.floor(frame / 8) % #authoredMap1Layer1Animation44) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((math.floor(frame / 8) % #authoredMap1Layer1Animation45) + 1)]
 end
 local ProjectMaps = {
   ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
@@ -571,6 +587,38 @@ local function move_object(index, dx, dy, collisionOverride)
     shift("y", dy)
 end
 
+local function startPlayerAttack()
+    PlayerAttack.active = true
+    PlayerAttack.remaining = 64
+    PlayerAttack.frame = 0
+    PlayerAttack.direction = PlayerFacingLeft and -1 or 1
+    PlayerAttack.hitTargets = {}
+    for targetIndex, target in ipairs(objects) do
+        if targetIndex ~= 12 then target.hitByPlayer = false end
+    end
+end
+
+local function updatePlayerAttack()
+    if not PlayerAttack.active then PlayerAttack.hitbox = nil; return end
+    if PlayerAttack.remaining <= 0 then PlayerAttack.active = false; PlayerAttack.hitbox = nil; return end
+    PlayerAttack.frame = PlayerAttack.frame + 1
+    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[12])
+    local reach = math.max(8, playerX2 - playerX1)
+    local attackHeight = math.max(8, playerY2 - playerY1)
+    local attackX = PlayerAttack.direction < 0 and (playerX1 - reach) or playerX2
+    local hitbox = { kind = "rect", x = attackX, y = playerY1, width = reach, height = attackHeight }
+    PlayerAttack.hitbox = hitbox
+    PlayerAttack.x = attackX
+    PlayerAttack.y = playerY1
+    for targetIndex, target in ipairs(objects) do
+        if targetIndex ~= 12 and target.collision and overlaps(hitbox, target) and not PlayerAttack.hitTargets[targetIndex] then
+            PlayerAttack.hitTargets[targetIndex] = true
+            target.hitByPlayer = true
+        end
+    end
+    PlayerAttack.remaining = PlayerAttack.remaining - 1
+end
+
 function loop(frame)
     for index, color in ipairs(Palette) do
         ui.palset(index - 1, color)
@@ -582,28 +630,6 @@ function loop(frame)
     ui.clip(0, 0, 480, 270)
     ui.camera(0, 0)
     ui.cls(ASSET_PALETTE_SIZE + 0)
-    local dx11 = 0
-    local dy11 = 0
-    if ui.btn(LEFT) then dx11 = dx11 - objects[11].speed end
-    if ui.btn(RIGHT) then dx11 = dx11 + objects[11].speed end
-    if ui.btn(UP) then dy11 = dy11 - objects[11].speed end
-    if ui.btn(DOWN) then dy11 = dy11 + objects[11].speed end
-    move_object(11, dx11, dy11)
-    objects[11].vy = math.min(objects[11].vy + objects[11].gravity_force, 12)
-    local remaining11 = objects[11].vy
-    local grounded11 = false
-    while math.abs(remaining11) > 0.001 do
-        local step11 = remaining11 > 0 and math.min(1, remaining11) or math.max(-1, remaining11)
-        local beforeY11 = object_y(11)
-        move_object(11, 0, step11)
-        if object_y(11) == beforeY11 then
-            grounded11 = remaining11 > 0
-            objects[11].vy = 0
-            break
-        end
-        remaining11 = remaining11 - step11
-    end
-    if objects[11].jump and ui.btnp(objects[11].jump_button) and grounded11 then objects[11].vy = -objects[11].jump_force end
     if objects[4].auto then
         local currentAuto4 = object_axis_position(4, objects[4].auto_axis)
         local targetAuto4 = objects[4].auto_direction > 0 and (objects[4].auto_origin + objects[4].auto_distance) or objects[4].auto_origin
@@ -667,33 +693,44 @@ function loop(frame)
             objects[8].auto_direction = -objects[8].auto_direction
         end
     end
+    PlayerActions.moveLeft = ui.btn(LEFT)
+    PlayerActions.moveRight = ui.btn(RIGHT)
+    PlayerActions.jump = ui.btnp(BTN_Z)
+    PlayerActions.attack = ui.btnp((BTN_X or BTN_E))
+    if PlayerActions.moveLeft then PlayerFacingLeft = true elseif PlayerActions.moveRight then PlayerFacingLeft = false end
+    local playerDx = 0
+    if PlayerActions.moveLeft then playerDx = playerDx - objects[12].speed end
+    if PlayerActions.moveRight then playerDx = playerDx + objects[12].speed end
+    move_object(12, playerDx, 0)
+    objects[12].vy = math.min(objects[12].vy + objects[12].gravity_force, 12)
+    local playerRemainingY = objects[12].vy
+    local playerGrounded = false
+    while math.abs(playerRemainingY) > 0.001 do
+        local playerStepY = playerRemainingY > 0 and math.min(1, playerRemainingY) or math.max(-1, playerRemainingY)
+        local playerBeforeY = object_y(12)
+        move_object(12, 0, playerStepY)
+        if object_y(12) == playerBeforeY then
+            playerGrounded = playerRemainingY > 0
+            objects[12].vy = 0
+            break
+        end
+        playerRemainingY = playerRemainingY - playerStepY
+    end
+    if PlayerActions.jump and playerGrounded then objects[12].vy = -objects[12].jump_force end
+    if PlayerActions.attack then startPlayerAttack() end
+    updatePlayerAttack()
+    PlayerActionDraw = nil
+    PlayerAttackDraw = nil
+    if objects[12].vy < 0 then
+        PlayerActionDraw = nil
+    elseif PlayerActions.moveLeft then
+        PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
+    elseif PlayerActions.moveRight then
+        PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
+    end
+    if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[math.min((math.floor((PlayerAttack.frame - 1) / 8)) + 1, 8)], x, y, PlayerAttack.direction < 0, false) end end
 
-    local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[11])
-    local targetCenterX = (targetLeft + targetRight) / 2
-    local targetCenterY = (targetTop + targetBottom) / 2
-    local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
-    local directionY = cameraPreviousY and targetCenterY - cameraPreviousY or 0
-    cameraPreviousX, cameraPreviousY = targetCenterX, targetCenterY
-    local margin = 16
-    if cameraLockX == 1 then
-        if targetCenterX > cameraX + margin or directionX < 0 then cameraLockX = 0 end
-    elseif cameraLockX == -1 then
-        if targetCenterX < cameraX + 480 - margin or directionX > 0 then cameraLockX = 0 end
-    end
-    if cameraLockY == 1 then
-        if targetCenterY > cameraY + margin or directionY < 0 then cameraLockY = 0 end
-    elseif cameraLockY == -1 then
-        if targetCenterY < cameraY + 270 - margin or directionY > 0 then cameraLockY = 0 end
-    end
-    if cameraLockX == 0 then
-        if targetCenterX < cameraX + margin and cameraX > 0 then cameraX = math.max(0, cameraX - 480); cameraLockX = -1
-        elseif targetCenterX > cameraX + 480 - margin and cameraX < WORLD_WIDTH - 480 then cameraX = math.min(WORLD_WIDTH - 480, cameraX + 480); cameraLockX = 1 end
-    end
-    if cameraLockY == 0 then
-        if targetCenterY < cameraY + margin and cameraY > 0 then cameraY = math.max(0, cameraY - 270); cameraLockY = -1
-        elseif targetCenterY > cameraY + 270 - margin and cameraY < WORLD_HEIGHT - 270 then cameraY = math.min(WORLD_HEIGHT - 270, cameraY + 270); cameraLockY = 1 end
-    end
-    ui.camera(cameraX, cameraY)
+    ui.camera(0, 0)
     if ActiveMap then ActiveMap.update(frame) end
 
     ui.map(authoredMap1Layer1)
@@ -704,11 +741,12 @@ function loop(frame)
     if not objects[6].invisible then ui.rectfill(objects[6].x, objects[6].y, objects[6].x + objects[6].width, objects[6].y + objects[6].height, objects[6].color) end
     if not objects[8].invisible then ui.circfill(objects[8].x + objects[8].radius, objects[8].y + objects[8].radius, objects[8].radius, objects[8].color) end
     if not objects[10].invisible then ui.rectfill(objects[10].x, objects[10].y, objects[10].x + objects[10].width, objects[10].y + objects[10].height, objects[10].color) end
-    if not objects[11].invisible then ui.rectfill(objects[11].x, objects[11].y, objects[11].x + objects[11].width, objects[11].y + objects[11].height, objects[11].color) end
     ui.map(authoredMap1Layer2)
     if not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
     if not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
     ui.spr(resolveSpriteAsset("assets/created/grassblock.png"), 318, 137, false, false)
     ui.map(authoredMap1Layer3)
     ui.map(authoredMap1Layer4)
+    if PlayerActionDraw then PlayerActionDraw(objects[12].x, objects[12].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[12].x, objects[12].y, PlayerFacingLeft, false) end
+    if PlayerAttack.active and PlayerAttackDraw and PlayerAttack.hitbox then PlayerAttackDraw(PlayerAttack.x, PlayerAttack.y) end
 end
