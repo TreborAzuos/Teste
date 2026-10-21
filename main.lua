@@ -739,10 +739,10 @@ function loop(frame)
     local margin = 16
     local maxCameraX = math.max(0, WORLD_WIDTH - 480)
     local maxCameraY = math.max(0, WORLD_HEIGHT - 270)
-    if targetCenterX < cameraX + margin then cameraX = math.max(0, targetCenterX - margin)
-    elseif targetCenterX > cameraX + 480 - margin then cameraX = math.min(maxCameraX, targetCenterX - (480 - margin)) end
-    if targetCenterY < cameraY + margin then cameraY = math.max(0, targetCenterY - margin)
-    elseif targetCenterY > cameraY + 270 - margin then cameraY = math.min(maxCameraY, targetCenterY - (270 - margin)) end
+    if targetCenterX < cameraX - margin then cameraX = math.max(0, cameraX - 480)
+    elseif targetCenterX > cameraX + 480 + margin then cameraX = math.min(maxCameraX, cameraX + 480) end
+    if targetCenterY < cameraY - margin then cameraY = math.max(0, cameraY - 270)
+    elseif targetCenterY > cameraY + 270 + margin then cameraY = math.min(maxCameraY, cameraY + 270) end
     ui.camera(math.floor(cameraX), math.floor(cameraY))
     if ActiveMap then ActiveMap.update(frame) end
 
