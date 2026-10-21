@@ -371,51 +371,51 @@ local authoredMap1Layer1Animation43 = { "tilemap.sunny.1", "tilemap.sunny.2", "t
 local authoredMap1Layer1Animation44 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
 local authoredMap1Layer1Animation45 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
 local function authoredMap1Update(frame)
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation1[((frame // 8) % #authoredMap1Layer2Animation1) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation2[((frame // 8) % #authoredMap1Layer2Animation2) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation3[((frame // 8) % #authoredMap1Layer2Animation3) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation4[((frame // 8) % #authoredMap1Layer2Animation4) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation5[((frame // 8) % #authoredMap1Layer2Animation5) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation6[((frame // 8) % #authoredMap1Layer2Animation6) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation7[((frame // 8) % #authoredMap1Layer2Animation7) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation8[((frame // 8) % #authoredMap1Layer2Animation8) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation9[((frame // 8) % #authoredMap1Layer2Animation9) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation10[((frame // 8) % #authoredMap1Layer2Animation10) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation11[((frame // 8) % #authoredMap1Layer2Animation11) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation12[((frame // 8) % #authoredMap1Layer2Animation12) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation13[((frame // 8) % #authoredMap1Layer2Animation13) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation14[((frame // 8) % #authoredMap1Layer2Animation14) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation15[((frame // 8) % #authoredMap1Layer2Animation15) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation16[((frame // 8) % #authoredMap1Layer2Animation16) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation17[((frame // 8) % #authoredMap1Layer2Animation17) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation18[((frame // 8) % #authoredMap1Layer2Animation18) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation19[((frame // 8) % #authoredMap1Layer2Animation19) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation20[((frame // 8) % #authoredMap1Layer2Animation20) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation21[((frame // 8) % #authoredMap1Layer2Animation21) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation22[((frame // 8) % #authoredMap1Layer2Animation22) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation23[((frame // 8) % #authoredMap1Layer2Animation23) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation24[((frame // 8) % #authoredMap1Layer2Animation24) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation25[((frame // 8) % #authoredMap1Layer2Animation25) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation26[((frame // 8) % #authoredMap1Layer2Animation26) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation27[((frame // 8) % #authoredMap1Layer2Animation27) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation28[((frame // 8) % #authoredMap1Layer2Animation28) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation29[((frame // 8) % #authoredMap1Layer2Animation29) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation30[((frame // 8) % #authoredMap1Layer2Animation30) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation31[((frame // 8) % #authoredMap1Layer2Animation31) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation32[((frame // 8) % #authoredMap1Layer2Animation32) + 1]
-        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation33[((frame // 8) % #authoredMap1Layer2Animation33) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation34[((frame // 8) % #authoredMap1Layer1Animation34) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation35[((frame // 8) % #authoredMap1Layer1Animation35) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation36[((frame // 8) % #authoredMap1Layer1Animation36) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation37[((frame // 8) % #authoredMap1Layer1Animation37) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation38[((frame // 8) % #authoredMap1Layer1Animation38) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation39[((frame // 8) % #authoredMap1Layer1Animation39) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation40[((frame // 8) % #authoredMap1Layer1Animation40) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation41[((frame // 8) % #authoredMap1Layer1Animation41) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation42[((frame // 8) % #authoredMap1Layer1Animation42) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation43[((frame // 8) % #authoredMap1Layer1Animation43) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation44[((frame // 8) % #authoredMap1Layer1Animation44) + 1]
-        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((frame // 8) % #authoredMap1Layer1Animation45) + 1]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation1[((math.floor(frame / 8) % #authoredMap1Layer2Animation1) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation2[((math.floor(frame / 8) % #authoredMap1Layer2Animation2) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation3[((math.floor(frame / 8) % #authoredMap1Layer2Animation3) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation4[((math.floor(frame / 8) % #authoredMap1Layer2Animation4) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation5[((math.floor(frame / 8) % #authoredMap1Layer2Animation5) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation6[((math.floor(frame / 8) % #authoredMap1Layer2Animation6) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation7[((math.floor(frame / 8) % #authoredMap1Layer2Animation7) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation8[((math.floor(frame / 8) % #authoredMap1Layer2Animation8) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation9[((math.floor(frame / 8) % #authoredMap1Layer2Animation9) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation10[((math.floor(frame / 8) % #authoredMap1Layer2Animation10) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation11[((math.floor(frame / 8) % #authoredMap1Layer2Animation11) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation12[((math.floor(frame / 8) % #authoredMap1Layer2Animation12) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation13[((math.floor(frame / 8) % #authoredMap1Layer2Animation13) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation14[((math.floor(frame / 8) % #authoredMap1Layer2Animation14) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation15[((math.floor(frame / 8) % #authoredMap1Layer2Animation15) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation16[((math.floor(frame / 8) % #authoredMap1Layer2Animation16) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation17[((math.floor(frame / 8) % #authoredMap1Layer2Animation17) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation18[((math.floor(frame / 8) % #authoredMap1Layer2Animation18) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation19[((math.floor(frame / 8) % #authoredMap1Layer2Animation19) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation20[((math.floor(frame / 8) % #authoredMap1Layer2Animation20) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation21[((math.floor(frame / 8) % #authoredMap1Layer2Animation21) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation22[((math.floor(frame / 8) % #authoredMap1Layer2Animation22) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation23[((math.floor(frame / 8) % #authoredMap1Layer2Animation23) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation24[((math.floor(frame / 8) % #authoredMap1Layer2Animation24) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation25[((math.floor(frame / 8) % #authoredMap1Layer2Animation25) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation26[((math.floor(frame / 8) % #authoredMap1Layer2Animation26) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation27[((math.floor(frame / 8) % #authoredMap1Layer2Animation27) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation28[((math.floor(frame / 8) % #authoredMap1Layer2Animation28) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation29[((math.floor(frame / 8) % #authoredMap1Layer2Animation29) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation30[((math.floor(frame / 8) % #authoredMap1Layer2Animation30) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation31[((math.floor(frame / 8) % #authoredMap1Layer2Animation31) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation32[((math.floor(frame / 8) % #authoredMap1Layer2Animation32) + 1)]
+        authoredMap1Layer2.tilesets["tilemap.sunny.1"] = authoredMap1Layer2Animation33[((math.floor(frame / 8) % #authoredMap1Layer2Animation33) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation34[((math.floor(frame / 8) % #authoredMap1Layer1Animation34) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation35[((math.floor(frame / 8) % #authoredMap1Layer1Animation35) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation36[((math.floor(frame / 8) % #authoredMap1Layer1Animation36) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation37[((math.floor(frame / 8) % #authoredMap1Layer1Animation37) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation38[((math.floor(frame / 8) % #authoredMap1Layer1Animation38) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation39[((math.floor(frame / 8) % #authoredMap1Layer1Animation39) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation40[((math.floor(frame / 8) % #authoredMap1Layer1Animation40) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation41[((math.floor(frame / 8) % #authoredMap1Layer1Animation41) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation42[((math.floor(frame / 8) % #authoredMap1Layer1Animation42) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation43[((math.floor(frame / 8) % #authoredMap1Layer1Animation43) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation44[((math.floor(frame / 8) % #authoredMap1Layer1Animation44) + 1)]
+        authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((math.floor(frame / 8) % #authoredMap1Layer1Animation45) + 1)]
 end
 local ProjectMaps = {
   ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
@@ -609,7 +609,7 @@ local function updatePlayerAttack()
     local hitbox = { kind = "rect", x = attackX, y = playerY1, width = reach, height = attackHeight }
     PlayerAttack.hitbox = hitbox
     PlayerAttack.x = attackX
-    PlayerAttack.y = playerY1
+    PlayerAttack.y = playerY2 - 13
     for targetIndex, target in ipairs(objects) do
         if targetIndex ~= 12 and target.collision and overlaps(hitbox, target) and not PlayerAttack.hitTargets[targetIndex] then
             PlayerAttack.hitTargets[targetIndex] = true
@@ -701,6 +701,9 @@ function loop(frame)
     local playerDx = 0
     if PlayerActions.moveLeft then playerDx = playerDx - objects[12].speed end
     if PlayerActions.moveRight then playerDx = playerDx + objects[12].speed end
+    local playerLeft, _, _, playerRight = bounds(objects[12])
+    if playerDx < 0 then playerDx = math.max(playerDx, -playerLeft)
+    elseif playerDx > 0 then playerDx = math.min(playerDx, WORLD_WIDTH - playerRight) end
     move_object(12, playerDx, 0)
     objects[12].vy = math.min(objects[12].vy + objects[12].gravity_force, 12)
     local playerRemainingY = objects[12].vy
@@ -724,11 +727,11 @@ function loop(frame)
     if objects[12].vy < 0 then
         PlayerActionDraw = nil
     elseif PlayerActions.moveLeft then
-        PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((frame // 8) % 16) + 1], x, y, PlayerFacingLeft, false) end
+        PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
     elseif PlayerActions.moveRight then
-        PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((frame // 8) % 16) + 1], x, y, PlayerFacingLeft, false) end
+        PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
     end
-    if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[math.min(((PlayerAttack.frame - 1) // 8) + 1, 8)], x, y, PlayerAttack.direction < 0, false) end end
+    if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[math.min((math.floor((PlayerAttack.frame - 1) / 8)) + 1, 8)], x, y, PlayerAttack.direction < 0, false) end end
 
     local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[12])
     local targetCenterX = (targetLeft + targetRight) / 2
@@ -772,6 +775,6 @@ function loop(frame)
     ui.spr(resolveSpriteAsset("assets/created/grassblock.png"), 318, 137, false, false)
     ui.map(authoredMap1Layer3)
     ui.map(authoredMap1Layer4)
-    if PlayerActionDraw then PlayerActionDraw(objects[12].x, objects[12].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((frame // 8) % 4) + 1], objects[12].x, objects[12].y, PlayerFacingLeft, false) end
+    if PlayerActionDraw then PlayerActionDraw(objects[12].x, objects[12].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[12].x, objects[12].y, PlayerFacingLeft, false) end
     if PlayerAttack.active and PlayerAttackDraw and PlayerAttack.hitbox then PlayerAttackDraw(PlayerAttack.x, PlayerAttack.y) end
 end
