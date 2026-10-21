@@ -66,17 +66,20 @@ local function resolveSpriteAsset(assetPath)
 end
 
 local objects = {
-    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, invisible = true, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, invisible = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, invisible = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, invisible = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, invisible = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 30, y = 170, width = 29, height = 31, collision = true, invisible = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 30, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 7, jump_button = BTN_Z },
+    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, invisible = false, surface = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, invisible = false, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 30, y = 170, width = 29, height = 31, collision = true, invisible = false, surface = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 30, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 7, jump_button = BTN_Z },
+    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, invisible = true, surface = true, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, invisible = true, surface = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
 }
 
 local authoredMap1Layer2 = {
@@ -169,24 +172,6 @@ local authoredMap1Layer2 = {
       [706] = 38,
   },
   ["wtt"] = {
-      [484] = 0,
-      [485] = 0,
-      [486] = 0,
-      [487] = 0,
-      [488] = 0,
-      [489] = 0,
-      [490] = 0,
-      [491] = 0,
-      [492] = 0,
-      [544] = 1,
-      [545] = 1,
-      [546] = 1,
-      [547] = 1,
-      [548] = 1,
-      [549] = 1,
-      [550] = 1,
-      [551] = 1,
-      [552] = 1,
       [751] = 86,
       [752] = 86,
       [753] = 86,
@@ -299,6 +284,31 @@ local authoredMap1Layer1 = {
       [766] = 38,
   },
 }
+local authoredMap1Layer4 = {
+  metadata = { width = 60, height = 17, tile_size = 16 },
+  tilesets = {
+    ["wtt"] = "wtt",
+  },
+  ["wtt"] = {
+      [605] = 0,
+      [606] = 0,
+      [607] = 0,
+      [608] = 0,
+      [609] = 0,
+      [610] = 0,
+  },
+}
+local authoredMap1Layer3 = {
+  metadata = { width = 60, height = 17, tile_size = 16 },
+  tilesets = {
+    ["wtt"] = "wtt",
+  },
+  ["wtt"] = {
+      [426] = 0,
+      [427] = 0,
+      [428] = 0,
+  },
+}
 local authoredMap1Layer2Animation1 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
 local authoredMap1Layer2Animation2 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
 local authoredMap1Layer2Animation3 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
@@ -392,7 +402,7 @@ local function authoredMap1Update(frame)
         authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((frame // 8) % #authoredMap1Layer1Animation45) + 1]
 end
 local ProjectMaps = {
-  ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2 }, update = authoredMap1Update },
+  ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
 }
 local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
@@ -419,6 +429,13 @@ local function overlap_area(a, b)
     local height = math.min(ay2, by2) - math.max(ay1, by1)
     if width <= 0 or height <= 0 then return 0 end
     return width * height
+end
+
+local function crossed_surface(moving, previous, surface, axis, amount)
+    if not surface.surface or axis ~= "y" or amount <= 0 then return false end
+    local previousLeft, previousTop, previousRight, previousBottom = bounds(previous)
+    local currentLeft, currentTop, currentRight, currentBottom = bounds(moving)
+    return previousBottom <= surface.y and currentBottom > surface.y and currentLeft < surface.x + surface.width and currentRight > surface.x
 end
 
 local function object_y(index)
@@ -494,7 +511,7 @@ local function move_group(groupIndex, dx, dy, collisionOverride)
                     if not isMember and other.collision then
                         local oldObject = {kind = object.kind, width = object.width, height = object.height, radius = object.radius}
                         for key, value in pairs(previous[index]) do if value ~= nil then oldObject[key] = value end end
-                        if overlap_area(object, other) > overlap_area(oldObject, other) then blocked = true; break end
+                        if crossed_surface(object, oldObject, other, axis, amount) or (not other.surface and overlap_area(object, other) > overlap_area(oldObject, other)) then blocked = true; break end
                     end
                 end
             end
@@ -539,7 +556,7 @@ local function move_object(index, dx, dy, collisionOverride)
                 if otherIndex ~= index and other.collision then
                     local oldObject = {kind = object.kind, width = object.width, height = object.height, radius = object.radius}
                     for key, value in pairs(old) do if value ~= nil then oldObject[key] = value end end
-                    if overlap_area(object, other) > overlap_area(oldObject, other) then
+                    if crossed_surface(object, oldObject, other, axis, amount) or (not other.surface and overlap_area(object, other) > overlap_area(oldObject, other)) then
                     if object.kind == "line" then
                         object.x1 = old.x1; object.x2 = old.x2
                         object.y1 = old.y1; object.y2 = old.y2
@@ -691,4 +708,7 @@ function loop(frame)
     ui.map(authoredMap1Layer2)
     if not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
     if not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
+    ui.spr(resolveSpriteAsset("assets/created/grass-block.png"), 318, 137, false, false)
+    ui.map(authoredMap1Layer3)
+    ui.map(authoredMap1Layer4)
 end
