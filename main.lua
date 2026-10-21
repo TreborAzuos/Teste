@@ -84,7 +84,7 @@ local authoredMap1Layer2 = {
   tilesets = {
     ["leaves"] = "leaves",
     ["tilemap.sunny.1"] = "tilemap.sunny.1",
-    ["world_tileset-tiles"] = "world_tileset-tiles",
+    ["wtt"] = "wtt",
   },
   ["leaves"] = {
       [91] = 0,
@@ -168,7 +168,7 @@ local authoredMap1Layer2 = {
       [646] = 38,
       [706] = 38,
   },
-  ["world_tileset-tiles"] = {
+  ["wtt"] = {
       [484] = 0,
       [485] = 0,
       [486] = 0,
