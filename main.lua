@@ -7,6 +7,11 @@ local WORLD_WIDTH = 960
 local WORLD_HEIGHT = 270
 local PlayerScore = 0
 local PlayerLives = 3
+local PlayerMessage = ""
+local function showPlayerMessage(message, frame)
+    if message and message ~= "" then PlayerMessage = message end
+end
+local GameFrame = 0
 local PlayerPortalTarget = nil
 local PlayerActions = {}
 local PlayerActionDraw = nil
@@ -86,24 +91,24 @@ local function resolveSpriteAsset(assetPath)
 end
 
 local objects = {
-    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 317, y = 99, radius = 18, collision = true, trigger = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 885, y = 176, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 265, y = 120, width = 32, height = 32, collision = true, trigger = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 91, y = 79, width = 16, height = 16, collision = true, trigger = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, trigger = false, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 317, y = 99, radius = 18, collision = true, trigger = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 885, y = 176, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 265, y = 120, width = 32, height = 32, collision = true, trigger = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 91, y = 79, width = 16, height = 16, collision = true, trigger = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, trigger = false, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
 }
 
 local authoredMap1Layer2 = {
@@ -674,15 +679,31 @@ local function updatePlayerAttack()
 end
 
 local PlayerDamageCooldown = 0
+local PlayerDeathMessage = "Você morreu!"
+local PlayerPortalCooldown = 0
 local PlayerKeys = {}
-local function damagePlayer(amount)
+local function damagePlayer(amount, attacker, frame)
     if PlayerDamageCooldown > 0 or PlayerLives <= 0 then return end
+    local wasAlive = PlayerLives > 0
     PlayerLives = math.max(0, PlayerLives - amount)
     PlayerDamageCooldown = 30
+    if attacker and attacker.interaction == "enemy" then
+        local playerLeft, playerTop, playerRight, playerBottom = bounds(objects[14])
+        local enemyLeft, enemyTop, enemyRight, enemyBottom = bounds(attacker)
+        local playerX, playerY = (playerLeft + playerRight) / 2, (playerTop + playerBottom) / 2
+        local enemyX, enemyY = (enemyLeft + enemyRight) / 2, (enemyTop + enemyBottom) / 2
+        local dx = playerX - enemyX
+        local dy = playerY - enemyY
+        local length = math.sqrt(dx * dx + dy * dy)
+        if length < 0.001 then dx = PlayerFacingLeft and 1 or -1; dy = 0; length = 1 end
+        move_object(14, dx / length * attacker.knockback, dy / length * attacker.knockback)
+    end
+    if wasAlive and PlayerLives <= 0 then PlayerAttack.active = false; showPlayerMessage(PlayerDeathMessage, frame) end
 end
 
-local function updatePlayerInteractions()
+local function updatePlayerInteractions(frame)
     if PlayerDamageCooldown > 0 then PlayerDamageCooldown = PlayerDamageCooldown - 1 end
+    if PlayerPortalCooldown > 0 then PlayerPortalCooldown = PlayerPortalCooldown - 1 end
     if PlayerLives <= 0 then return end
     local player = objects[14]
     for targetIndex, target in ipairs(objects) do
@@ -691,14 +712,18 @@ local function updatePlayerInteractions()
                 target.active = false; target.collision = false
                 PlayerScore = PlayerScore + target.score_value
                 PlayerLives = PlayerLives + target.life_bonus
+                showPlayerMessage(target.message, frame)
             elseif target.interaction == "key" then
                 target.active = false; target.collision = false
                 PlayerKeys[target.key_id] = true
+                showPlayerMessage(target.message, frame)
             elseif target.interaction == "hazard" or target.interaction == "enemy" then
-                damagePlayer(target.life_damage)
+                showPlayerMessage(target.message, frame)
+                damagePlayer(target.life_damage, target, frame)
             elseif target.interaction == "door" or target.interaction == "portal" then
                 local hasRequiredKey = target.required_key_id == "" or PlayerKeys[target.required_key_id]
-                if hasRequiredKey then
+                local activated = target.activation_mode == "contact" or (target.activation_mode == "button" and PlayerActions.interact)
+                if hasRequiredKey and activated and PlayerPortalCooldown <= 0 then
                     if target.target_map_id == "" or target.target_map_id == ActiveMapId then
                         player.x, player.y = target.target_x, target.target_y
                         cameraX, cameraY = 0, 0
@@ -706,7 +731,12 @@ local function updatePlayerInteractions()
                         cameraPreviousX, cameraPreviousY = nil, nil
                     elseif ProjectMaps[target.target_map_id] then
                         PlayerPortalTarget = target.target_map_id
+                        showPlayerMessage("Portal entre mapas indisponível", frame)
                     end
+                    PlayerPortalCooldown = 30
+                    showPlayerMessage(target.message, frame)
+                elseif activated and PlayerPortalCooldown <= 0 then
+                    showPlayerMessage(target.message, frame)
                 end
             end
         end
@@ -724,6 +754,15 @@ function loop(frame)
     ui.clip(0, 0, 480, 270)
     ui.camera(0, 0)
     ui.cls(ASSET_PALETTE_SIZE + 0)
+    if frame == 1 then showPlayerMessage("Bem vindo!", frame) end
+    local messageWasActive = PlayerMessage ~= ""
+    if messageWasActive then
+        if ui.btnp(LEFT) or ui.btnp(RIGHT) or ui.btnp(UP) or ui.btnp(DOWN) or ui.btnp(BTN_Z) or ui.btnp(BTN_X) or ui.btnp(BTN_F) or ui.btnp(BTN_G) or ui.btnp(BTN_Q) or ui.btnp(BTN_E) then PlayerMessage = "" end
+    else
+        GameFrame = GameFrame + 1
+    end
+    frame = GameFrame
+    if not messageWasActive then
     if objects[4].auto then
         local currentAuto4 = object_axis_position(4, objects[4].auto_axis)
         local targetAuto4 = objects[4].auto_direction > 0 and (objects[4].auto_origin + objects[4].auto_distance) or objects[4].auto_origin
@@ -787,10 +826,10 @@ function loop(frame)
             objects[8].auto_direction = -objects[8].auto_direction
         end
     end
-    PlayerActions.moveLeft = ui.btn(LEFT)
-    PlayerActions.moveRight = ui.btn(RIGHT)
-    PlayerActions.jump = ui.btnp(BTN_Z)
-    PlayerActions.attack = ui.btnp(BTN_X)
+    PlayerActions.moveLeft = PlayerLives > 0 and ui.btn(LEFT)
+    PlayerActions.moveRight = PlayerLives > 0 and ui.btn(RIGHT)
+    PlayerActions.jump = PlayerLives > 0 and ui.btnp(BTN_Z)
+    PlayerActions.attack = PlayerLives > 0 and ui.btnp(BTN_X)
     if PlayerActions.moveLeft and PlayerActions.moveUp then PlayerFacingAngle = 225 elseif PlayerActions.moveRight and PlayerActions.moveUp then PlayerFacingAngle = 315 elseif PlayerActions.moveLeft then PlayerFacingAngle = 180 elseif PlayerActions.moveRight then PlayerFacingAngle = 0 elseif PlayerActions.moveUp then PlayerFacingAngle = 270 end
     PlayerFacingLeft = math.cos(math.rad(PlayerFacingAngle)) < -0.001
     local playerDx = 0
@@ -817,7 +856,7 @@ function loop(frame)
     if PlayerActions.jump and playerGrounded then objects[14].vy = -objects[14].jump_force end
     if PlayerActions.attack then startPlayerAttack() end
     updatePlayerAttack()
-    updatePlayerInteractions()
+    updatePlayerInteractions(frame)
     PlayerActionDraw = nil
     PlayerAttackDraw = nil
     if objects[14].vy < 0 then
@@ -828,6 +867,7 @@ function loop(frame)
         PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
     end
     if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[((math.floor((PlayerAttack.frame - 1) / 8) % 8) + 1)], x, y, PlayerAttack.direction < 0, false) end end
+    end
 
     local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[14])
     local targetCenterX = (targetLeft + targetRight) / 2
@@ -855,7 +895,7 @@ function loop(frame)
         elseif targetCenterY > cameraY + 270 - margin and cameraY < WORLD_HEIGHT - 270 then cameraY = math.min(WORLD_HEIGHT - 270, cameraY + 270); cameraLockY = 1 end
     end
     ui.camera(cameraX, cameraY)
-    if ActiveMap then ActiveMap.update(frame) end
+    if not messageWasActive and ActiveMap then ActiveMap.update(frame) end
 
     ui.map(authoredMap1Layer1)
     if objects[1].active and not objects[1].invisible then ui.rectfill(objects[1].x, objects[1].y, objects[1].x + objects[1].width, objects[1].y + objects[1].height, objects[1].color) end
@@ -879,5 +919,6 @@ function loop(frame)
     if objects[16].active then ui.tile(resolveSpriteAsset("assets/prepared/wtt.png"), 68, 91, 79, false, false) end
     ui.camera(0, 0)
     ui.print("Pontos: " .. tostring(PlayerScore), 8, 8, ASSET_PALETTE_SIZE + 7)
-    ui.print("Vidas: " .. tostring(PlayerLives), 8, 24, ASSET_PALETTE_SIZE + 7)
+    for lifeIndex = 1, PlayerLives do ui.spr(resolveSpriteAsset("assets/player/main.png"), 8 + (lifeIndex - 1) * 16, 24) end
+    if PlayerMessage ~= "" then ui.print(PlayerMessage, 8, 246, ASSET_PALETTE_SIZE + 7); ui.print("Pressione qualquer botão", 8, 258, ASSET_PALETTE_SIZE + 7) end
 end
