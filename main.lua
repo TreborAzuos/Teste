@@ -3,7 +3,7 @@
 require "palette"
 require "sprites"
 
-local WORLD_WIDTH, WORLD_HEIGHT = 480, 270
+local WORLD_WIDTH, WORLD_HEIGHT = 960, 270
 local StartingLives = 3
 local PlayerScore = 0
 local PlayerLives = StartingLives
@@ -691,7 +691,7 @@ local ProjectMaps = {
   ["map-1"] = { name = "Mapa 1", width = 60, height = 17, world_width = 960, world_height = 270, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
   ["b57387a1-e895-463d-a55e-3aa4970caa8c"] = { name = "Mapa 2", width = 30, height = 17, world_width = 480, world_height = 270, tile_size = 16, layers = { authoredMap2Layer1, authoredMap2Layer3 }, update = authoredMap2Update },
 }
-local ActiveMapId = "b57387a1-e895-463d-a55e-3aa4970caa8c"
+local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
 WORLD_WIDTH, WORLD_HEIGHT = ActiveMap.world_width, ActiveMap.world_height
 local InitialMapId = ActiveMapId
@@ -1218,7 +1218,39 @@ function loop(frame)
     if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[((math.floor((PlayerAttack.frame - 1) / 8) % 8) + 1)], x, y, PlayerAttack.direction < 0, false) end end
     end
 
-    ui.camera(0, 0)
+    if ActiveMapId == "map-1" then
+        local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[15])
+        local targetCenterX = (targetLeft + targetRight) / 2
+        local targetCenterY = (targetTop + targetBottom) / 2
+        local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
+        local directionY = cameraPreviousY and targetCenterY - cameraPreviousY or 0
+        cameraPreviousX, cameraPreviousY = targetCenterX, targetCenterY
+        local margin = 12
+        if cameraLockX == 1 then
+            if targetCenterX > cameraX + margin or directionX < 0 then cameraLockX = 0 end
+        elseif cameraLockX == -1 then
+            if targetCenterX < cameraX + 480 - margin or directionX > 0 then cameraLockX = 0 end
+        end
+        if cameraLockY == 1 then
+            if targetCenterY > cameraY + margin or directionY < 0 then cameraLockY = 0 end
+        elseif cameraLockY == -1 then
+            if targetCenterY < cameraY + 270 - margin or directionY > 0 then cameraLockY = 0 end
+        end
+        if cameraLockX == 0 then
+            if targetCenterX < cameraX + margin and cameraX > 0 then cameraX = math.max(0, cameraX - 480); cameraLockX = -1
+            elseif targetCenterX > cameraX + 480 - margin and cameraX < WORLD_WIDTH - 480 then cameraX = math.min(WORLD_WIDTH - 480, cameraX + 480); cameraLockX = 1 end
+        end
+        if cameraLockY == 0 then
+            if targetCenterY < cameraY + margin and cameraY > 0 then cameraY = math.max(0, cameraY - 270); cameraLockY = -1
+            elseif targetCenterY > cameraY + 270 - margin and cameraY < WORLD_HEIGHT - 270 then cameraY = math.min(WORLD_HEIGHT - 270, cameraY + 270); cameraLockY = 1 end
+        end
+        ui.camera(cameraX, cameraY)
+    else
+        local playerLeft, playerTop, playerRight, playerBottom = bounds(objects[15])
+        cameraX = ui.mid(0, (playerLeft + playerRight) / 2 - 240, WORLD_WIDTH - 480)
+        cameraY = ui.mid(0, (playerTop + playerBottom) / 2 - 135, WORLD_HEIGHT - 270)
+        ui.camera(math.floor(cameraX), math.floor(cameraY))
+    end
     if not messageWasActive and ActiveMap then ActiveMap.update(frame) end
 
     if ActiveMapId == "map-1" then ui.map(authoredMap1Layer1) end
