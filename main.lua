@@ -5,8 +5,9 @@ require "sprites"
 
 local WORLD_WIDTH = 960
 local WORLD_HEIGHT = 270
+local StartingLives = 3
 local PlayerScore = 0
-local PlayerLives = 3
+local PlayerLives = StartingLives
 local PlayerMessage = ""
 local MessageScreens = {}
 local CurrentMessageScreen = nil
@@ -16,11 +17,17 @@ local function showPlayerMessage(screenId, frame)
 end
 local GameFrame = 0
 local PlayerPortalTarget = nil
+local PlayerKeys = {}
+local PlayerCheckpoint = nil
+local PlayerDamageCooldown = 0
+local PlayerPortalCooldown = 0
+local RestartAfterDeath = false
+local StartMessageShown = false
 local PlayerActions = {}
 local PlayerActionDraw = nil
 local PlayerAttackDraw = nil
 local PlayerFacingLeft = false
-local PlayerFacingAngle = false and 180 or 0
+local PlayerFacingAngle = 0
 local PlayerAttack = { active = false, remaining = 0, frame = 0, direction = 1, directionX = 1, directionY = 0, angle = 0, hitbox = nil, hitTargets = {}, x = 0, y = 0, traveled = 0, width = 8, height = 8 }
 local cameraX, cameraY = 0, 0
 local cameraLockX, cameraLockY = 0, 0
@@ -98,24 +105,25 @@ MessageScreens = {
   ["8f498d8a-e368-42a2-882f-a60663ae8436"] = { text = "Você Morreu!", background_enabled = false, background_color = ASSET_PALETTE_SIZE + 0, frame_enabled = true, frame_x = 48, frame_y = 54, frame_width = 384, frame_height = 144, frame_color = ASSET_PALETTE_SIZE + 0, border_color = ASSET_PALETTE_SIZE + 7, border_thickness = 2, border_sprite = nil, border_sprite_type = "sprite", border_sprite_width = 16, border_sprite_height = 16, text_x = 240, text_y = 86, text_align = "center", line_height = 18, prompt_enabled = true, prompt_x = 190, prompt_y = 230, text_color = ASSET_PALETTE_SIZE + 7 },
 }
 local objects = {
-    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 317, y = 99, radius = 18, collision = true, trigger = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 885, y = 176, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 265, y = 120, width = 32, height = 32, collision = true, trigger = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 91, y = 79, width = 16, height = 16, collision = true, trigger = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, trigger = false, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, activation_mode = "contact", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 317, y = 99, radius = 18, collision = true, trigger = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 885, y = 176, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 739, y = 168, width = 23, height = 36, collision = true, trigger = true, invisible = true, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "b57387a1-e895-463d-a55e-3aa4970caa8c", target_x = 20, target_y = 200, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 739, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 265, y = 120, width = 32, height = 32, collision = true, trigger = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "checkpoint", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 91, y = 79, width = 16, height = 16, collision = true, trigger = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, trigger = false, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
 }
 
 local authoredMap1Layer2 = {
@@ -437,11 +445,296 @@ local function authoredMap1Update(frame)
         authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation44[((math.floor(frame / 8) % #authoredMap1Layer1Animation44) + 1)]
         authoredMap1Layer1.tilesets["tilemap.sunny.1"] = authoredMap1Layer1Animation45[((math.floor(frame / 8) % #authoredMap1Layer1Animation45) + 1)]
 end
+local authoredMap2Layer3 = {
+  metadata = { width = 30, height = 17, tile_size = 16 },
+  tilesets = {
+    ["wtt"] = "wtt",
+  },
+  ["wtt"] = {
+      [421] = 0,
+      [422] = 0,
+      [423] = 0,
+      [424] = 0,
+      [425] = 0,
+      [426] = 0,
+      [427] = 2,
+      [428] = 2,
+      [429] = 2,
+      [430] = 2,
+      [431] = 2,
+      [432] = 2,
+      [433] = 2,
+      [434] = 4,
+      [435] = 4,
+      [436] = 4,
+      [437] = 4,
+      [438] = 4,
+      [439] = 4,
+      [440] = 4,
+      [441] = 4,
+      [442] = 4,
+      [443] = 4,
+      [444] = 6,
+      [445] = 6,
+      [446] = 6,
+      [447] = 6,
+      [448] = 6,
+      [449] = 6,
+      [450] = 6,
+  },
+}
+local authoredMap2Layer1 = {
+  metadata = { width = 30, height = 17, tile_size = 16 },
+  tilesets = {
+    ["wtt"] = "wtt",
+    ["tilemap.sunny.1"] = "tilemap.sunny.1",
+  },
+  ["wtt"] = {
+      [451] = 5,
+      [452] = 5,
+      [453] = 5,
+      [454] = 5,
+      [455] = 5,
+      [456] = 5,
+      [457] = 5,
+      [458] = 5,
+      [459] = 5,
+      [460] = 5,
+      [461] = 5,
+      [462] = 5,
+      [463] = 5,
+      [464] = 5,
+      [465] = 5,
+      [466] = 5,
+      [496] = 5,
+      [497] = 5,
+      [467] = 5,
+      [468] = 5,
+      [469] = 5,
+      [470] = 5,
+      [471] = 5,
+      [472] = 5,
+      [473] = 5,
+      [474] = 5,
+      [475] = 5,
+      [476] = 5,
+      [477] = 5,
+      [478] = 5,
+      [479] = 5,
+      [480] = 5,
+      [510] = 5,
+      [509] = 5,
+      [508] = 5,
+      [507] = 5,
+      [506] = 5,
+      [505] = 5,
+      [504] = 5,
+      [503] = 5,
+      [502] = 5,
+      [501] = 5,
+      [500] = 5,
+      [499] = 5,
+      [498] = 5,
+      [495] = 5,
+      [494] = 5,
+      [493] = 5,
+      [492] = 5,
+      [491] = 5,
+      [490] = 5,
+      [489] = 5,
+      [488] = 5,
+      [487] = 5,
+      [486] = 5,
+      [485] = 5,
+      [484] = 5,
+      [483] = 5,
+      [482] = 5,
+      [481] = 5,
+  },
+  ["tilemap.sunny.1"] = {
+      [181] = 48,
+      [182] = 48,
+      [183] = 48,
+      [184] = 48,
+      [185] = 48,
+      [186] = 48,
+      [187] = 48,
+      [188] = 48,
+      [189] = 48,
+      [190] = 48,
+      [191] = 48,
+      [192] = 48,
+      [193] = 48,
+      [194] = 48,
+      [195] = 48,
+      [196] = 48,
+      [197] = 48,
+      [198] = 48,
+      [199] = 48,
+      [200] = 48,
+      [201] = 48,
+      [202] = 48,
+      [203] = 48,
+      [204] = 48,
+      [205] = 48,
+      [206] = 48,
+      [207] = 48,
+      [208] = 48,
+      [209] = 48,
+      [210] = 48,
+      [231] = 30,
+      [261] = 30,
+      [291] = 30,
+      [321] = 30,
+      [351] = 30,
+      [381] = 30,
+      [411] = 30,
+      [232] = 30,
+      [262] = 30,
+      [292] = 30,
+      [322] = 30,
+      [352] = 30,
+      [382] = 30,
+      [412] = 30,
+  },
+}
+local authoredMap2Layer1Animation1 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation2 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation3 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation4 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation5 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation6 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation7 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation8 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation9 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation10 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation11 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation12 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation13 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation14 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation15 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation16 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation17 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation18 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation19 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation20 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation21 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation22 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation23 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation24 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation25 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation26 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation27 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation28 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation29 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation30 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation31 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation32 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation33 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation34 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation35 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation36 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation37 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation38 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation39 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation40 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation41 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation42 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation43 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local authoredMap2Layer1Animation44 = { "tilemap.sunny.1", "tilemap.sunny.2", "tilemap.sunny.3", "tilemap.sunny.4" }
+local function authoredMap2Update(frame)
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation1[((math.floor(frame / 8) % #authoredMap2Layer1Animation1) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation2[((math.floor(frame / 8) % #authoredMap2Layer1Animation2) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation3[((math.floor(frame / 8) % #authoredMap2Layer1Animation3) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation4[((math.floor(frame / 8) % #authoredMap2Layer1Animation4) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation5[((math.floor(frame / 8) % #authoredMap2Layer1Animation5) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation6[((math.floor(frame / 8) % #authoredMap2Layer1Animation6) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation7[((math.floor(frame / 8) % #authoredMap2Layer1Animation7) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation8[((math.floor(frame / 8) % #authoredMap2Layer1Animation8) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation9[((math.floor(frame / 8) % #authoredMap2Layer1Animation9) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation10[((math.floor(frame / 8) % #authoredMap2Layer1Animation10) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation11[((math.floor(frame / 8) % #authoredMap2Layer1Animation11) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation12[((math.floor(frame / 8) % #authoredMap2Layer1Animation12) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation13[((math.floor(frame / 8) % #authoredMap2Layer1Animation13) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation14[((math.floor(frame / 8) % #authoredMap2Layer1Animation14) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation15[((math.floor(frame / 8) % #authoredMap2Layer1Animation15) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation16[((math.floor(frame / 8) % #authoredMap2Layer1Animation16) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation17[((math.floor(frame / 8) % #authoredMap2Layer1Animation17) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation18[((math.floor(frame / 8) % #authoredMap2Layer1Animation18) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation19[((math.floor(frame / 8) % #authoredMap2Layer1Animation19) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation20[((math.floor(frame / 8) % #authoredMap2Layer1Animation20) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation21[((math.floor(frame / 8) % #authoredMap2Layer1Animation21) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation22[((math.floor(frame / 8) % #authoredMap2Layer1Animation22) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation23[((math.floor(frame / 8) % #authoredMap2Layer1Animation23) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation24[((math.floor(frame / 8) % #authoredMap2Layer1Animation24) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation25[((math.floor(frame / 8) % #authoredMap2Layer1Animation25) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation26[((math.floor(frame / 8) % #authoredMap2Layer1Animation26) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation27[((math.floor(frame / 8) % #authoredMap2Layer1Animation27) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation28[((math.floor(frame / 8) % #authoredMap2Layer1Animation28) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation29[((math.floor(frame / 8) % #authoredMap2Layer1Animation29) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation30[((math.floor(frame / 8) % #authoredMap2Layer1Animation30) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation31[((math.floor(frame / 8) % #authoredMap2Layer1Animation31) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation32[((math.floor(frame / 8) % #authoredMap2Layer1Animation32) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation33[((math.floor(frame / 8) % #authoredMap2Layer1Animation33) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation34[((math.floor(frame / 8) % #authoredMap2Layer1Animation34) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation35[((math.floor(frame / 8) % #authoredMap2Layer1Animation35) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation36[((math.floor(frame / 8) % #authoredMap2Layer1Animation36) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation37[((math.floor(frame / 8) % #authoredMap2Layer1Animation37) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation38[((math.floor(frame / 8) % #authoredMap2Layer1Animation38) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation39[((math.floor(frame / 8) % #authoredMap2Layer1Animation39) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation40[((math.floor(frame / 8) % #authoredMap2Layer1Animation40) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation41[((math.floor(frame / 8) % #authoredMap2Layer1Animation41) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation42[((math.floor(frame / 8) % #authoredMap2Layer1Animation42) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation43[((math.floor(frame / 8) % #authoredMap2Layer1Animation43) + 1)]
+        authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation44[((math.floor(frame / 8) % #authoredMap2Layer1Animation44) + 1)]
+end
 local ProjectMaps = {
   ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
+  ["b57387a1-e895-463d-a55e-3aa4970caa8c"] = { name = "Mapa 2", width = 30, height = 17, tile_size = 16, layers = { authoredMap2Layer1, authoredMap2Layer3 }, update = authoredMap2Update },
 }
 local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
+local InitialMapId = ActiveMapId
+local InitialObjectState = {}
+for index, object in ipairs(objects) do
+    InitialObjectState[index] = { x = object.x, y = object.y, active = object.active, collision = object.collision, health = object.health, defeated = object.defeated, auto_direction = object.auto_direction, vy = object.vy, hitByPlayer = object.hitByPlayer }
+end
+local InitialGroupState = {}
+
+local function restartGame()
+    PlayerScore = 0
+    PlayerLives = StartingLives
+    PlayerKeys = {}
+    PlayerCheckpoint = nil
+    PlayerDamageCooldown = 0
+    PlayerPortalCooldown = 0
+    PlayerPortalTarget = nil
+    RestartAfterDeath = false
+    PlayerMessage = ""
+    CurrentMessageScreen = nil
+    StartMessageShown = false
+    GameFrame = 0
+    PlayerFacingLeft = false
+    PlayerFacingAngle = 0
+    PlayerActions = {}
+    PlayerActionDraw = nil
+    PlayerAttackDraw = nil
+    PlayerAttack = { active = false, remaining = 0, frame = 0, direction = 1, directionX = 1, directionY = 0, angle = 0, hitbox = nil, hitTargets = {}, x = 0, y = 0, traveled = 0, width = 8, height = 8 }
+    for index, object in ipairs(objects) do
+        local initial = InitialObjectState[index]
+        object.x, object.y = initial.x, initial.y
+        object.active, object.collision = initial.active, initial.collision
+        object.health, object.defeated = initial.health, initial.defeated
+        object.auto_direction, object.vy = initial.auto_direction, initial.vy
+        object.hitByPlayer = initial.hitByPlayer
+    end
+    
+    ActiveMapId = InitialMapId
+    ActiveMap = ProjectMaps[ActiveMapId]
+    cameraX, cameraY = 0, 0
+    cameraLockX, cameraLockY = 0, 0
+    cameraPreviousX, cameraPreviousY = nil, nil
+end
 
 local spriteFrames3 = { resolveSpriteAsset("assets/animations/bird/1.png"), resolveSpriteAsset("assets/animations/bird/2.png"), resolveSpriteAsset("assets/animations/bird/3.png"), resolveSpriteAsset("assets/animations/bird/4.png") }
 
@@ -617,7 +910,7 @@ local function startPlayerAttack()
     PlayerAttack.angle = PlayerFacingAngle
     PlayerAttack.hitTargets = {}
     PlayerAttack.hitbox = nil
-    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[14])
+    local playerX1, playerY1, playerX2, playerY2 = bounds(objects[15])
     PlayerAttack.width = 21
     PlayerAttack.height = 13
     PlayerAttack.directionX = math.cos(math.rad(PlayerAttack.angle))
@@ -635,7 +928,7 @@ local function startPlayerAttack()
     PlayerAttack.traveled = 0
     PlayerAttack.hitbox = { kind = "rect", x = PlayerAttack.x, y = PlayerAttack.y, width = PlayerAttack.width, height = PlayerAttack.height }
     for targetIndex, target in ipairs(objects) do
-        if targetIndex ~= 14 then target.hitByPlayer = false end
+        if targetIndex ~= 15 then target.hitByPlayer = false end
     end
 end
 
@@ -651,7 +944,7 @@ local function updatePlayerAttack()
         local nextHitbox = { kind = "rect", x = nextX, y = nextY, width = PlayerAttack.width, height = PlayerAttack.height }
         local hitTarget = nil
         for targetIndex, target in ipairs(objects) do
-            if targetIndex ~= 14 and target.collision and overlaps(nextHitbox, target) then
+            if targetIndex ~= 15 and target.collision and overlaps(nextHitbox, target) then
                 hitTarget = targetIndex
                 break
             end
@@ -685,17 +978,32 @@ local function updatePlayerAttack()
     if PlayerAttack.active and PlayerAttack.traveled >= 160 then PlayerAttack.active = false; PlayerAttack.hitbox = nil end
 end
 
-local PlayerDamageCooldown = 0
 local PlayerDeathMessage = "8f498d8a-e368-42a2-882f-a60663ae8436"
-local PlayerPortalCooldown = 0
-local PlayerKeys = {}
+local PlayerMapStartX, PlayerMapStartY = 26, 179
+local function respawnPlayer(useCheckpoint)
+    local player = objects[15]
+    if useCheckpoint and PlayerCheckpoint and PlayerCheckpoint.map_id == ActiveMapId then
+        player.x, player.y = PlayerCheckpoint.x, PlayerCheckpoint.y
+    else
+        player.x, player.y = PlayerMapStartX, PlayerMapStartY
+    end
+    player.vy = 0
+    cameraX, cameraY = 0, 0
+    cameraLockX, cameraLockY = 0, 0
+    cameraPreviousX, cameraPreviousY = nil, nil
+end
 local function damagePlayer(amount, attacker, frame)
     if PlayerDamageCooldown > 0 or PlayerLives <= 0 then return end
     local wasAlive = PlayerLives > 0
     PlayerLives = math.max(0, PlayerLives - amount)
     PlayerDamageCooldown = 30
-    if attacker and attacker.interaction == "enemy" then
-        local playerLeft, playerTop, playerRight, playerBottom = bounds(objects[14])
+    if attacker and attacker.interaction == "enemy" and PlayerLives > 0 then
+        if attacker.enemy_response == "map-start" then
+            respawnPlayer(false)
+        elseif attacker.enemy_response == "checkpoint" then
+            respawnPlayer(true)
+        else
+        local playerLeft, playerTop, playerRight, playerBottom = bounds(objects[15])
         local enemyLeft, enemyTop, enemyRight, enemyBottom = bounds(attacker)
         local playerX, playerY = (playerLeft + playerRight) / 2, (playerTop + playerBottom) / 2
         local enemyX, enemyY = (enemyLeft + enemyRight) / 2, (enemyTop + enemyBottom) / 2
@@ -703,18 +1011,29 @@ local function damagePlayer(amount, attacker, frame)
         local dy = playerY - enemyY
         local length = math.sqrt(dx * dx + dy * dy)
         if length < 0.001 then dx = PlayerFacingLeft and 1 or -1; dy = 0; length = 1 end
-        move_object(14, dx / length * attacker.knockback, dy / length * attacker.knockback)
+        move_object(15, dx / length * attacker.knockback, dy / length * attacker.knockback)
+        end
     end
-    if wasAlive and PlayerLives <= 0 then PlayerAttack.active = false; showPlayerMessage(PlayerDeathMessage, frame) end
+    if wasAlive and PlayerLives <= 0 then PlayerAttack.active = false; RestartAfterDeath = true; showPlayerMessage(PlayerDeathMessage, frame) end
 end
 
 local function updatePlayerInteractions(frame)
     if PlayerDamageCooldown > 0 then PlayerDamageCooldown = PlayerDamageCooldown - 1 end
     if PlayerPortalCooldown > 0 then PlayerPortalCooldown = PlayerPortalCooldown - 1 end
     if PlayerLives <= 0 then return end
-    local player = objects[14]
+    local player = objects[15]
     for targetIndex, target in ipairs(objects) do
-        if targetIndex ~= 14 and target.active and target.collision and overlaps(player, target) then
+        if targetIndex ~= 15 and target.active and target.collision and overlaps(player, target) then
+            if target.checkpoint_enabled then
+                local checkpointActivated = target.checkpoint_mode == "contact" or target.checkpoint_mode == "button" and PlayerActions.interact
+                if target.checkpoint_mode == "interaction" then
+                    if target.interaction == "door" or target.interaction == "portal" then
+                        local keyReady = target.required_key_id == "" or PlayerKeys[target.required_key_id]
+                        checkpointActivated = keyReady and (target.activation_mode == "contact" or target.activation_mode == "button" and PlayerActions.interact) and PlayerPortalCooldown <= 0
+                    else checkpointActivated = true end
+                end
+                if checkpointActivated then PlayerCheckpoint = { map_id = ActiveMapId, x = target.x, y = target.y } end
+            end
             if target.interaction == "collectible" then
                 target.active = false; target.collision = false
                 PlayerScore = PlayerScore + target.score_value
@@ -761,15 +1080,19 @@ function loop(frame)
     ui.clip(0, 0, 480, 270)
     ui.camera(0, 0)
     ui.cls(ASSET_PALETTE_SIZE + 0)
-    if frame == 1 then showPlayerMessage("95ba878d-55db-4270-95e1-be37413b9fc3", frame) end
+    if not StartMessageShown then StartMessageShown = true; showPlayerMessage("95ba878d-55db-4270-95e1-be37413b9fc3", frame) end
     local messageWasActive = PlayerMessage ~= ""
     if messageWasActive then
-        if ui.btnp(LEFT) or ui.btnp(RIGHT) or ui.btnp(UP) or ui.btnp(DOWN) or ui.btnp(BTN_Z) or ui.btnp(BTN_X) or ui.btnp(BTN_F) or ui.btnp(BTN_G) or ui.btnp(BTN_Q) or ui.btnp(BTN_E) then PlayerMessage = ""; CurrentMessageScreen = nil end
+        if ui.btnp(LEFT) or ui.btnp(RIGHT) or ui.btnp(UP) or ui.btnp(DOWN) or ui.btnp(BTN_Z) or ui.btnp(BTN_X) or ui.btnp(BTN_F) or ui.btnp(BTN_G) or ui.btnp(BTN_Q) or ui.btnp(BTN_E) then
+            PlayerMessage = ""; CurrentMessageScreen = nil
+            if RestartAfterDeath then restartGame() end
+        end
     else
-        GameFrame = GameFrame + 1
+        if PlayerLives <= 0 and RestartAfterDeath and (ui.btnp(LEFT) or ui.btnp(RIGHT) or ui.btnp(UP) or ui.btnp(DOWN) or ui.btnp(BTN_Z) or ui.btnp(BTN_X) or ui.btnp(BTN_F) or ui.btnp(BTN_G) or ui.btnp(BTN_Q) or ui.btnp(BTN_E)) then restartGame()
+        else GameFrame = GameFrame + 1 end
     end
     frame = GameFrame
-    if not messageWasActive then
+    if not messageWasActive and PlayerLives > 0 then
     if objects[4].auto then
         local currentAuto4 = object_axis_position(4, objects[4].auto_axis)
         local targetAuto4 = objects[4].auto_direction > 0 and (objects[4].auto_origin + objects[4].auto_distance) or objects[4].auto_origin
@@ -840,33 +1163,33 @@ function loop(frame)
     if PlayerActions.moveLeft and PlayerActions.moveUp then PlayerFacingAngle = 225 elseif PlayerActions.moveRight and PlayerActions.moveUp then PlayerFacingAngle = 315 elseif PlayerActions.moveLeft then PlayerFacingAngle = 180 elseif PlayerActions.moveRight then PlayerFacingAngle = 0 elseif PlayerActions.moveUp then PlayerFacingAngle = 270 end
     PlayerFacingLeft = math.cos(math.rad(PlayerFacingAngle)) < -0.001
     local playerDx = 0
-    if PlayerActions.moveLeft then playerDx = playerDx - objects[14].speed end
-    if PlayerActions.moveRight then playerDx = playerDx + objects[14].speed end
-    local playerLeft, _, _, playerRight = bounds(objects[14])
+    if PlayerActions.moveLeft then playerDx = playerDx - objects[15].speed end
+    if PlayerActions.moveRight then playerDx = playerDx + objects[15].speed end
+    local playerLeft, _, _, playerRight = bounds(objects[15])
     if playerDx < 0 then playerDx = math.max(playerDx, -playerLeft)
     elseif playerDx > 0 then playerDx = math.min(playerDx, WORLD_WIDTH - playerRight) end
-    move_object(14, playerDx, 0)
-    objects[14].vy = math.min(objects[14].vy + objects[14].gravity_force, 12)
-    local playerRemainingY = objects[14].vy
+    move_object(15, playerDx, 0)
+    objects[15].vy = math.min(objects[15].vy + objects[15].gravity_force, 12)
+    local playerRemainingY = objects[15].vy
     local playerGrounded = false
     while math.abs(playerRemainingY) > 0.001 do
         local playerStepY = playerRemainingY > 0 and math.min(1, playerRemainingY) or math.max(-1, playerRemainingY)
-        local playerBeforeY = object_y(14)
-        move_object(14, 0, playerStepY)
-        if object_y(14) == playerBeforeY then
+        local playerBeforeY = object_y(15)
+        move_object(15, 0, playerStepY)
+        if object_y(15) == playerBeforeY then
             playerGrounded = playerRemainingY > 0
-            objects[14].vy = 0
+            objects[15].vy = 0
             break
         end
         playerRemainingY = playerRemainingY - playerStepY
     end
-    if PlayerActions.jump and playerGrounded then objects[14].vy = -objects[14].jump_force end
+    if PlayerActions.jump and playerGrounded then objects[15].vy = -objects[15].jump_force end
     if PlayerActions.attack then startPlayerAttack() end
     updatePlayerAttack()
     updatePlayerInteractions(frame)
     PlayerActionDraw = nil
     PlayerAttackDraw = nil
-    if objects[14].vy < 0 then
+    if objects[15].vy < 0 then
         PlayerActionDraw = nil
     elseif PlayerActions.moveLeft then
         PlayerActionDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/krun.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })[((math.floor(frame / 8) % 16) + 1)], x, y, PlayerFacingLeft, false) end
@@ -876,7 +1199,7 @@ function loop(frame)
     if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[((math.floor((PlayerAttack.frame - 1) / 8) % 8) + 1)], x, y, PlayerAttack.direction < 0, false) end end
     end
 
-    local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[14])
+    local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[15])
     local targetCenterX = (targetLeft + targetRight) / 2
     local targetCenterY = (targetTop + targetBottom) / 2
     local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
@@ -920,10 +1243,10 @@ function loop(frame)
     ui.map(authoredMap1Layer4)
     if objects[11].active and not objects[11].invisible then ui.circfill(objects[11].x + objects[11].radius, objects[11].y + objects[11].radius, objects[11].radius, objects[11].color) end
     if objects[12].active and not objects[12].invisible then ui.circfill(objects[12].x + objects[12].radius, objects[12].y + objects[12].radius, objects[12].radius, objects[12].color) end
-    if PlayerActionDraw then PlayerActionDraw(objects[14].x, objects[14].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[14].x, objects[14].y, PlayerFacingLeft, false) end
+    if PlayerActionDraw then PlayerActionDraw(objects[15].x, objects[15].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[15].x, objects[15].y, PlayerFacingLeft, false) end
     if PlayerAttack.active and PlayerAttackDraw and PlayerAttack.hitbox then PlayerAttackDraw(PlayerAttack.x, PlayerAttack.y) end
-    if objects[15].active then ui.spr(spriteFrames3[((math.floor(frame / 8) % #spriteFrames3) + 1)], 265, 120, false, false) end
-    if objects[16].active then ui.tile(resolveSpriteAsset("assets/prepared/wtt.png"), 68, 91, 79, false, false) end
+    if objects[16].active then ui.spr(spriteFrames3[((math.floor(frame / 8) % #spriteFrames3) + 1)], 265, 120, false, false) end
+    if objects[17].active then ui.tile(resolveSpriteAsset("assets/prepared/wtt.png"), 68, 91, 79, false, false) end
     ui.camera(0, 0)
     ui.print("Pontos: " .. tostring(PlayerScore), 8, 8, ASSET_PALETTE_SIZE + 7)
     for lifeIndex = 1, PlayerLives do ui.spr(resolveSpriteAsset("assets/player/main.png"), 8 + (lifeIndex - 1) * 16, 24) end
