@@ -3,8 +3,7 @@
 require "palette"
 require "sprites"
 
-local WORLD_WIDTH = 960
-local WORLD_HEIGHT = 270
+local WORLD_WIDTH, WORLD_HEIGHT = 480, 270
 local StartingLives = 3
 local PlayerScore = 0
 local PlayerLives = StartingLives
@@ -105,25 +104,25 @@ MessageScreens = {
   ["8f498d8a-e368-42a2-882f-a60663ae8436"] = { text = "Você Morreu!", background_enabled = false, background_color = ASSET_PALETTE_SIZE + 0, frame_enabled = true, frame_x = 48, frame_y = 54, frame_width = 384, frame_height = 144, frame_color = ASSET_PALETTE_SIZE + 0, border_color = ASSET_PALETTE_SIZE + 7, border_thickness = 2, border_sprite = nil, border_sprite_type = "sprite", border_sprite_width = 16, border_sprite_height = 16, text_x = 240, text_y = 86, text_align = "center", line_height = 18, prompt_enabled = true, prompt_x = 190, prompt_y = 230, text_color = ASSET_PALETTE_SIZE + 7 },
 }
 local objects = {
-    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, x = 8, y = 0, width = 473, height = 270, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, x = 0, y = 206, width = 480, height = 63, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, x = 190, y = 16, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, x = 201, y = 148, width = 111, height = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 483, y = 205, width = 475, height = 64, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, x = 551, y = 56, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, x = 779, y = 105, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 344, y = 21, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, x = 372, y = 21, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 317, y = 99, radius = 18, collision = true, trigger = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, x = 885, y = 176, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 1, x = 739, y = 168, width = 23, height = 36, collision = true, trigger = true, invisible = true, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "b57387a1-e895-463d-a55e-3aa4970caa8c", target_x = 20, target_y = 200, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 739, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 318, y = 137, width = 32, height = 32, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 26, y = 179, width = 20, height = 21, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 265, y = 120, width = 32, height = 32, collision = true, trigger = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "checkpoint", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 91, y = 79, width = 16, height = 16, collision = true, trigger = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = true, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 64, y = 160, width = 96, height = 1, collision = true, trigger = false, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
-    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, x = 80, y = 112, width = 48, height = 16, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 1", kind = "rect", color = ASSET_PALETTE_SIZE + 2, map_id = "map-1", x = 8, y = 0, width = 473, height = 270, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 8, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Linha 1", kind = "line", color = ASSET_PALETTE_SIZE + 1, map_id = "map-1", x1 = 1, y1 = 206, x2 = 479, y2 = 206, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 1, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 2", kind = "rect", color = ASSET_PALETTE_SIZE + 5, map_id = "map-1", x = 0, y = 206, width = 480, height = 63, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 0, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Triângulo 1", kind = "triangle", color = ASSET_PALETTE_SIZE + 4, map_id = "map-1", x = 190, y = 16, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 190, auto_distance = 64, auto_speed = 3, auto_collide = false, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 4", kind = "rect", color = ASSET_PALETTE_SIZE + 7, map_id = "map-1", x = 201, y = 148, width = 111, height = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 201, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 5", kind = "rect", color = ASSET_PALETTE_SIZE + 1, map_id = "map-1", x = 483, y = 205, width = 475, height = 64, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 483, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 2", kind = "circle", color = ASSET_PALETTE_SIZE + 8, map_id = "map-1", x = 551, y = 56, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "y", auto_origin = 56, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 3", kind = "circle", color = ASSET_PALETTE_SIZE + 9, map_id = "map-1", x = 779, y = 105, radius = 18, collision = true, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = true, auto_axis = "x", auto_origin = 779, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, map_id = "map-1", x = 344, y = 21, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 344, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 10, map_id = "map-1", x = 372, y = 21, width = 56, height = 36, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 372, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 4", kind = "circle", color = ASSET_PALETTE_SIZE + 1, map_id = "map-1", x = 317, y = 99, radius = 18, collision = true, trigger = true, invisible = false, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "map-1", target_x = 885, target_y = 176, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 317, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Círculo 5", kind = "circle", color = ASSET_PALETTE_SIZE + 1, map_id = "map-1", x = 885, y = 176, radius = 18, collision = false, trigger = false, invisible = false, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 885, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Retângulo 6", kind = "rect", color = ASSET_PALETTE_SIZE + 1, map_id = "map-1", x = 739, y = 168, width = 23, height = 36, collision = true, trigger = true, invisible = true, surface = false, interaction = "portal", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "b57387a1-e895-463d-a55e-3aa4970caa8c", target_x = 20, target_y = 200, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 739, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 020e6098-3e2b-4b28-9c35-f5753131e596", kind = "rect", color = ASSET_PALETTE_SIZE + 0, map_id = "map-1", x = 318, y = 137, width = 32, height = 32, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 318, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 78a6ea80-185b-48d6-ad1c-ea9cfe48664b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, map_id = "map-1", x = 26, y = 179, width = 20, height = 21, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = true, speed = 2, auto = false, auto_axis = "x", auto_origin = 26, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = true, gravity_force = 0.35, jump = true, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 0db5e9c5-aba4-4eb0-a5cf-7b123cf1f819", kind = "rect", color = ASSET_PALETTE_SIZE + 0, map_id = "map-1", x = 265, y = 120, width = 32, height = 32, collision = true, trigger = true, invisible = true, surface = false, interaction = "enemy", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "checkpoint", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 265, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor sprite 921c4438-833a-4b0f-a0dc-29261d0e761b", kind = "rect", color = ASSET_PALETTE_SIZE + 0, map_id = "map-1", x = 91, y = 79, width = 16, height = 16, collision = true, trigger = true, invisible = true, surface = false, interaction = "collectible", score_value = 100, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = true, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 91, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 4-9,10", kind = "rect", color = ASSET_PALETTE_SIZE + 0, map_id = "map-1", x = 64, y = 160, width = 96, height = 1, collision = true, trigger = false, invisible = true, surface = true, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 64, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
+    { name = "Colisor tiles 5-7,7", kind = "rect", color = ASSET_PALETTE_SIZE + 0, map_id = "map-1", x = 80, y = 112, width = 48, height = 16, collision = true, trigger = false, invisible = true, surface = false, interaction = "", score_value = 0, life_bonus = 0, life_damage = 1, health = 1, knockback = 8, enemy_response = "knockback", activation_mode = "contact", checkpoint_enabled = false, checkpoint_mode = "interaction", message_screen_id = "", key_id = "", required_key_id = "", target_map_id = "", target_x = 0, target_y = 0, active = true, defeated = false, movement = false, speed = 2, auto = false, auto_axis = "x", auto_origin = 80, auto_distance = 64, auto_speed = 1, auto_collide = true, auto_direction = 1, vy = 0, gravity = false, gravity_force = 0.35, jump = false, jump_force = 6, jump_button = BTN_Z },
 }
 
 local authoredMap1Layer2 = {
@@ -689,15 +688,16 @@ local function authoredMap2Update(frame)
         authoredMap2Layer1.tilesets["tilemap.sunny.1"] = authoredMap2Layer1Animation44[((math.floor(frame / 8) % #authoredMap2Layer1Animation44) + 1)]
 end
 local ProjectMaps = {
-  ["map-1"] = { name = "Mapa 1", width = 60, height = 17, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
-  ["b57387a1-e895-463d-a55e-3aa4970caa8c"] = { name = "Mapa 2", width = 30, height = 17, tile_size = 16, layers = { authoredMap2Layer1, authoredMap2Layer3 }, update = authoredMap2Update },
+  ["map-1"] = { name = "Mapa 1", width = 60, height = 17, world_width = 960, world_height = 270, tile_size = 16, layers = { authoredMap1Layer1, authoredMap1Layer2, authoredMap1Layer3, authoredMap1Layer4 }, update = authoredMap1Update },
+  ["b57387a1-e895-463d-a55e-3aa4970caa8c"] = { name = "Mapa 2", width = 30, height = 17, world_width = 480, world_height = 270, tile_size = 16, layers = { authoredMap2Layer1, authoredMap2Layer3 }, update = authoredMap2Update },
 }
-local ActiveMapId = "map-1"
+local ActiveMapId = "b57387a1-e895-463d-a55e-3aa4970caa8c"
 local ActiveMap = ProjectMaps[ActiveMapId]
+WORLD_WIDTH, WORLD_HEIGHT = ActiveMap.world_width, ActiveMap.world_height
 local InitialMapId = ActiveMapId
 local InitialObjectState = {}
 for index, object in ipairs(objects) do
-    InitialObjectState[index] = { x = object.x, y = object.y, active = object.active, collision = object.collision, health = object.health, defeated = object.defeated, auto_direction = object.auto_direction, vy = object.vy, hitByPlayer = object.hitByPlayer }
+    InitialObjectState[index] = { x = object.x, y = object.y, map_id = object.map_id, active = object.active, collision = object.collision, health = object.health, defeated = object.defeated, auto_direction = object.auto_direction, vy = object.vy, hitByPlayer = object.hitByPlayer }
 end
 local InitialGroupState = {}
 
@@ -722,7 +722,7 @@ local function restartGame()
     PlayerAttack = { active = false, remaining = 0, frame = 0, direction = 1, directionX = 1, directionY = 0, angle = 0, hitbox = nil, hitTargets = {}, x = 0, y = 0, traveled = 0, width = 8, height = 8 }
     for index, object in ipairs(objects) do
         local initial = InitialObjectState[index]
-        object.x, object.y = initial.x, initial.y
+        object.x, object.y, object.map_id = initial.x, initial.y, initial.map_id
         object.active, object.collision = initial.active, initial.collision
         object.health, object.defeated = initial.health, initial.defeated
         object.auto_direction, object.vy = initial.auto_direction, initial.vy
@@ -731,6 +731,7 @@ local function restartGame()
     
     ActiveMapId = InitialMapId
     ActiveMap = ProjectMaps[ActiveMapId]
+    WORLD_WIDTH, WORLD_HEIGHT = ActiveMap.world_width, ActiveMap.world_height
     cameraX, cameraY = 0, 0
     cameraLockX, cameraLockY = 0, 0
     cameraPreviousX, cameraPreviousY = nil, nil
@@ -839,7 +840,7 @@ local function move_group(groupIndex, dx, dy, collisionOverride)
                 for otherIndex, other in ipairs(objects) do
                     local isMember = false
                     for _, memberIndex in ipairs(group.members) do if memberIndex == otherIndex then isMember = true; break end end
-                    if not isMember and other.collision and not other.trigger then
+                    if not isMember and other.map_id == ActiveMapId and other.collision and not other.trigger then
                         local oldObject = {kind = object.kind, width = object.width, height = object.height, radius = object.radius}
                         for key, value in pairs(previous[index]) do if value ~= nil then oldObject[key] = value end end
                         if crossed_surface(object, oldObject, other, axis, amount) or (not other.surface and overlap_area(object, other) > overlap_area(oldObject, other)) then blocked = true; break end
@@ -884,7 +885,7 @@ local function move_object(index, dx, dy, collisionOverride)
         end
         if collisionOverride == true or (collisionOverride ~= false and object.collision) then
             for otherIndex, other in ipairs(objects) do
-                if otherIndex ~= index and other.collision and not other.trigger then
+                if otherIndex ~= index and other.map_id == ActiveMapId and other.collision and not other.trigger then
                     local oldObject = {kind = object.kind, width = object.width, height = object.height, radius = object.radius}
                     for key, value in pairs(old) do if value ~= nil then oldObject[key] = value end end
                     if crossed_surface(object, oldObject, other, axis, amount) or (not other.surface and overlap_area(object, other) > overlap_area(oldObject, other)) then
@@ -944,7 +945,7 @@ local function updatePlayerAttack()
         local nextHitbox = { kind = "rect", x = nextX, y = nextY, width = PlayerAttack.width, height = PlayerAttack.height }
         local hitTarget = nil
         for targetIndex, target in ipairs(objects) do
-            if targetIndex ~= 15 and target.collision and overlaps(nextHitbox, target) then
+            if targetIndex ~= 15 and target.map_id == ActiveMapId and target.collision and overlaps(nextHitbox, target) then
                 hitTarget = targetIndex
                 break
             end
@@ -1022,8 +1023,9 @@ local function updatePlayerInteractions(frame)
     if PlayerPortalCooldown > 0 then PlayerPortalCooldown = PlayerPortalCooldown - 1 end
     if PlayerLives <= 0 then return end
     local player = objects[15]
+    local changedMap = false
     for targetIndex, target in ipairs(objects) do
-        if targetIndex ~= 15 and target.active and target.collision and overlaps(player, target) then
+        if targetIndex ~= 15 and target.map_id == ActiveMapId and target.active and target.collision and overlaps(player, target) then
             if target.checkpoint_enabled then
                 local checkpointActivated = target.checkpoint_mode == "contact" or target.checkpoint_mode == "button" and PlayerActions.interact
                 if target.checkpoint_mode == "interaction" then
@@ -1051,13 +1053,23 @@ local function updatePlayerInteractions(frame)
                 local activated = target.activation_mode == "contact" or (target.activation_mode == "button" and PlayerActions.interact)
                 if hasRequiredKey and activated and PlayerPortalCooldown <= 0 then
                     if target.target_map_id == "" or target.target_map_id == ActiveMapId then
+                        player.map_id = ActiveMapId
                         player.x, player.y = target.target_x, target.target_y
                         cameraX, cameraY = 0, 0
                         cameraLockX, cameraLockY = 0, 0
                         cameraPreviousX, cameraPreviousY = nil, nil
                     elseif ProjectMaps[target.target_map_id] then
-                        PlayerPortalTarget = target.target_map_id
-                        showPlayerMessage("Portal entre mapas indisponível", frame)
+                        ActiveMapId = target.target_map_id
+                        ActiveMap = ProjectMaps[ActiveMapId]
+                        WORLD_WIDTH, WORLD_HEIGHT = ActiveMap.world_width, ActiveMap.world_height
+                        player.map_id = ActiveMapId
+                        player.x, player.y = target.target_x, target.target_y
+                        changedMap = true
+                        PlayerCheckpoint = nil
+                        PlayerAttack.active = false
+                        cameraX, cameraY = 0, 0
+                        cameraLockX, cameraLockY = 0, 0
+                        cameraPreviousX, cameraPreviousY = nil, nil
                     end
                     PlayerPortalCooldown = 30
                     showPlayerMessage(target.message_screen_id, frame)
@@ -1066,6 +1078,7 @@ local function updatePlayerInteractions(frame)
                 end
             end
         end
+        if changedMap then break end
     end
 end
 
@@ -1093,67 +1106,73 @@ function loop(frame)
     end
     frame = GameFrame
     if not messageWasActive and PlayerLives > 0 then
-    if objects[4].auto then
-        local currentAuto4 = object_axis_position(4, objects[4].auto_axis)
-        local targetAuto4 = objects[4].auto_direction > 0 and (objects[4].auto_origin + objects[4].auto_distance) or objects[4].auto_origin
-        local distanceAuto4 = targetAuto4 - currentAuto4
-        local step4 = math.min(math.abs(distanceAuto4), objects[4].auto_speed) * objects[4].auto_direction
-        if step4 ~= 0 then
-            local remainingAuto4 = step4
-            local blockedAuto4 = false
-            while math.abs(remainingAuto4) > 0.001 do
-                local stepSub4 = remainingAuto4 > 0 and math.min(1, remainingAuto4) or math.max(-1, remainingAuto4)
-                local beforeAuto4 = object_axis_position(4, objects[4].auto_axis)
-                move_object(4, stepSub4, 0, objects[4].auto_collide)
-                local afterAuto4 = object_axis_position(4, objects[4].auto_axis)
-                if afterAuto4 == beforeAuto4 then blockedAuto4 = true; break end
-                remainingAuto4 = remainingAuto4 - stepSub4
+    if objects[4].map_id == ActiveMapId then
+        if objects[4].auto then
+            local currentAuto4 = object_axis_position(4, objects[4].auto_axis)
+            local targetAuto4 = objects[4].auto_direction > 0 and (objects[4].auto_origin + objects[4].auto_distance) or objects[4].auto_origin
+            local distanceAuto4 = targetAuto4 - currentAuto4
+            local step4 = math.min(math.abs(distanceAuto4), objects[4].auto_speed) * objects[4].auto_direction
+            if step4 ~= 0 then
+                local remainingAuto4 = step4
+                local blockedAuto4 = false
+                while math.abs(remainingAuto4) > 0.001 do
+                    local stepSub4 = remainingAuto4 > 0 and math.min(1, remainingAuto4) or math.max(-1, remainingAuto4)
+                    local beforeAuto4 = object_axis_position(4, objects[4].auto_axis)
+                    move_object(4, stepSub4, 0, objects[4].auto_collide)
+                    local afterAuto4 = object_axis_position(4, objects[4].auto_axis)
+                    if afterAuto4 == beforeAuto4 then blockedAuto4 = true; break end
+                    remainingAuto4 = remainingAuto4 - stepSub4
+                end
+                if math.abs(distanceAuto4) <= objects[4].auto_speed or blockedAuto4 then objects[4].auto_direction = -objects[4].auto_direction end
+            else
+                objects[4].auto_direction = -objects[4].auto_direction
             end
-            if math.abs(distanceAuto4) <= objects[4].auto_speed or blockedAuto4 then objects[4].auto_direction = -objects[4].auto_direction end
-        else
-            objects[4].auto_direction = -objects[4].auto_direction
         end
     end
-    if objects[7].auto then
-        local currentAuto7 = object_axis_position(7, objects[7].auto_axis)
-        local targetAuto7 = objects[7].auto_direction > 0 and (objects[7].auto_origin + objects[7].auto_distance) or objects[7].auto_origin
-        local distanceAuto7 = targetAuto7 - currentAuto7
-        local step7 = math.min(math.abs(distanceAuto7), objects[7].auto_speed) * objects[7].auto_direction
-        if step7 ~= 0 then
-            local remainingAuto7 = step7
-            local blockedAuto7 = false
-            while math.abs(remainingAuto7) > 0.001 do
-                local stepSub7 = remainingAuto7 > 0 and math.min(1, remainingAuto7) or math.max(-1, remainingAuto7)
-                local beforeAuto7 = object_axis_position(7, objects[7].auto_axis)
-                move_object(7, 0, stepSub7, objects[7].auto_collide)
-                local afterAuto7 = object_axis_position(7, objects[7].auto_axis)
-                if afterAuto7 == beforeAuto7 then blockedAuto7 = true; break end
-                remainingAuto7 = remainingAuto7 - stepSub7
+    if objects[7].map_id == ActiveMapId then
+        if objects[7].auto then
+            local currentAuto7 = object_axis_position(7, objects[7].auto_axis)
+            local targetAuto7 = objects[7].auto_direction > 0 and (objects[7].auto_origin + objects[7].auto_distance) or objects[7].auto_origin
+            local distanceAuto7 = targetAuto7 - currentAuto7
+            local step7 = math.min(math.abs(distanceAuto7), objects[7].auto_speed) * objects[7].auto_direction
+            if step7 ~= 0 then
+                local remainingAuto7 = step7
+                local blockedAuto7 = false
+                while math.abs(remainingAuto7) > 0.001 do
+                    local stepSub7 = remainingAuto7 > 0 and math.min(1, remainingAuto7) or math.max(-1, remainingAuto7)
+                    local beforeAuto7 = object_axis_position(7, objects[7].auto_axis)
+                    move_object(7, 0, stepSub7, objects[7].auto_collide)
+                    local afterAuto7 = object_axis_position(7, objects[7].auto_axis)
+                    if afterAuto7 == beforeAuto7 then blockedAuto7 = true; break end
+                    remainingAuto7 = remainingAuto7 - stepSub7
+                end
+                if math.abs(distanceAuto7) <= objects[7].auto_speed or blockedAuto7 then objects[7].auto_direction = -objects[7].auto_direction end
+            else
+                objects[7].auto_direction = -objects[7].auto_direction
             end
-            if math.abs(distanceAuto7) <= objects[7].auto_speed or blockedAuto7 then objects[7].auto_direction = -objects[7].auto_direction end
-        else
-            objects[7].auto_direction = -objects[7].auto_direction
         end
     end
-    if objects[8].auto then
-        local currentAuto8 = object_axis_position(8, objects[8].auto_axis)
-        local targetAuto8 = objects[8].auto_direction > 0 and (objects[8].auto_origin + objects[8].auto_distance) or objects[8].auto_origin
-        local distanceAuto8 = targetAuto8 - currentAuto8
-        local step8 = math.min(math.abs(distanceAuto8), objects[8].auto_speed) * objects[8].auto_direction
-        if step8 ~= 0 then
-            local remainingAuto8 = step8
-            local blockedAuto8 = false
-            while math.abs(remainingAuto8) > 0.001 do
-                local stepSub8 = remainingAuto8 > 0 and math.min(1, remainingAuto8) or math.max(-1, remainingAuto8)
-                local beforeAuto8 = object_axis_position(8, objects[8].auto_axis)
-                move_object(8, stepSub8, 0, objects[8].auto_collide)
-                local afterAuto8 = object_axis_position(8, objects[8].auto_axis)
-                if afterAuto8 == beforeAuto8 then blockedAuto8 = true; break end
-                remainingAuto8 = remainingAuto8 - stepSub8
+    if objects[8].map_id == ActiveMapId then
+        if objects[8].auto then
+            local currentAuto8 = object_axis_position(8, objects[8].auto_axis)
+            local targetAuto8 = objects[8].auto_direction > 0 and (objects[8].auto_origin + objects[8].auto_distance) or objects[8].auto_origin
+            local distanceAuto8 = targetAuto8 - currentAuto8
+            local step8 = math.min(math.abs(distanceAuto8), objects[8].auto_speed) * objects[8].auto_direction
+            if step8 ~= 0 then
+                local remainingAuto8 = step8
+                local blockedAuto8 = false
+                while math.abs(remainingAuto8) > 0.001 do
+                    local stepSub8 = remainingAuto8 > 0 and math.min(1, remainingAuto8) or math.max(-1, remainingAuto8)
+                    local beforeAuto8 = object_axis_position(8, objects[8].auto_axis)
+                    move_object(8, stepSub8, 0, objects[8].auto_collide)
+                    local afterAuto8 = object_axis_position(8, objects[8].auto_axis)
+                    if afterAuto8 == beforeAuto8 then blockedAuto8 = true; break end
+                    remainingAuto8 = remainingAuto8 - stepSub8
+                end
+                if math.abs(distanceAuto8) <= objects[8].auto_speed or blockedAuto8 then objects[8].auto_direction = -objects[8].auto_direction end
+            else
+                objects[8].auto_direction = -objects[8].auto_direction
             end
-            if math.abs(distanceAuto8) <= objects[8].auto_speed or blockedAuto8 then objects[8].auto_direction = -objects[8].auto_direction end
-        else
-            objects[8].auto_direction = -objects[8].auto_direction
         end
     end
     PlayerActions.moveLeft = PlayerLives > 0 and ui.btn(LEFT)
@@ -1199,54 +1218,59 @@ function loop(frame)
     if PlayerAttack.active then PlayerAttackDraw = function(x, y) ui.tile(resolveSpriteAsset("assets/prepared/swatk.png"), ({ 0, 1, 2, 3, 4, 5, 6, 7 })[((math.floor((PlayerAttack.frame - 1) / 8) % 8) + 1)], x, y, PlayerAttack.direction < 0, false) end end
     end
 
-    local targetLeft, targetTop, targetRight, targetBottom = bounds(objects[15])
-    local targetCenterX = (targetLeft + targetRight) / 2
-    local targetCenterY = (targetTop + targetBottom) / 2
-    local directionX = cameraPreviousX and targetCenterX - cameraPreviousX or 0
-    local directionY = cameraPreviousY and targetCenterY - cameraPreviousY or 0
-    cameraPreviousX, cameraPreviousY = targetCenterX, targetCenterY
-    local margin = 12
-    if cameraLockX == 1 then
-        if targetCenterX > cameraX + margin or directionX < 0 then cameraLockX = 0 end
-    elseif cameraLockX == -1 then
-        if targetCenterX < cameraX + 480 - margin or directionX > 0 then cameraLockX = 0 end
-    end
-    if cameraLockY == 1 then
-        if targetCenterY > cameraY + margin or directionY < 0 then cameraLockY = 0 end
-    elseif cameraLockY == -1 then
-        if targetCenterY < cameraY + 270 - margin or directionY > 0 then cameraLockY = 0 end
-    end
-    if cameraLockX == 0 then
-        if targetCenterX < cameraX + margin and cameraX > 0 then cameraX = math.max(0, cameraX - 480); cameraLockX = -1
-        elseif targetCenterX > cameraX + 480 - margin and cameraX < WORLD_WIDTH - 480 then cameraX = math.min(WORLD_WIDTH - 480, cameraX + 480); cameraLockX = 1 end
-    end
-    if cameraLockY == 0 then
-        if targetCenterY < cameraY + margin and cameraY > 0 then cameraY = math.max(0, cameraY - 270); cameraLockY = -1
-        elseif targetCenterY > cameraY + 270 - margin and cameraY < WORLD_HEIGHT - 270 then cameraY = math.min(WORLD_HEIGHT - 270, cameraY + 270); cameraLockY = 1 end
-    end
-    ui.camera(cameraX, cameraY)
+    ui.camera(0, 0)
     if not messageWasActive and ActiveMap then ActiveMap.update(frame) end
 
-    ui.map(authoredMap1Layer1)
-    if objects[1].active and not objects[1].invisible then ui.rectfill(objects[1].x, objects[1].y, objects[1].x + objects[1].width, objects[1].y + objects[1].height, objects[1].color) end
-    if objects[3].active and not objects[3].invisible then ui.rectfill(objects[3].x, objects[3].y, objects[3].x + objects[3].width, objects[3].y + objects[3].height, objects[3].color) end
-    if objects[4].active and not objects[4].invisible then ui.trisfill(objects[4].x + objects[4].width / 2, objects[4].y, objects[4].x + objects[4].width, objects[4].y + objects[4].height, objects[4].x, objects[4].y + objects[4].height, objects[4].color) end
-    if objects[5].active and not objects[5].invisible then ui.rectfill(objects[5].x, objects[5].y, objects[5].x + objects[5].width, objects[5].y + objects[5].height, objects[5].color) end
-    if objects[6].active and not objects[6].invisible then ui.rectfill(objects[6].x, objects[6].y, objects[6].x + objects[6].width, objects[6].y + objects[6].height, objects[6].color) end
-    if objects[8].active and not objects[8].invisible then ui.circfill(objects[8].x + objects[8].radius, objects[8].y + objects[8].radius, objects[8].radius, objects[8].color) end
-    if objects[10].active and not objects[10].invisible then ui.rectfill(objects[10].x, objects[10].y, objects[10].x + objects[10].width, objects[10].y + objects[10].height, objects[10].color) end
-    ui.map(authoredMap1Layer2)
-    if objects[7].active and not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
-    if objects[9].active and not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
-    ui.spr(resolveSpriteAsset("assets/created/grassblock.png"), 318, 137, false, false)
-    ui.map(authoredMap1Layer3)
-    ui.map(authoredMap1Layer4)
-    if objects[11].active and not objects[11].invisible then ui.circfill(objects[11].x + objects[11].radius, objects[11].y + objects[11].radius, objects[11].radius, objects[11].color) end
-    if objects[12].active and not objects[12].invisible then ui.circfill(objects[12].x + objects[12].radius, objects[12].y + objects[12].radius, objects[12].radius, objects[12].color) end
-    if PlayerActionDraw then PlayerActionDraw(objects[15].x, objects[15].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[15].x, objects[15].y, PlayerFacingLeft, false) end
-    if PlayerAttack.active and PlayerAttackDraw and PlayerAttack.hitbox then PlayerAttackDraw(PlayerAttack.x, PlayerAttack.y) end
-    if objects[16].active then ui.spr(spriteFrames3[((math.floor(frame / 8) % #spriteFrames3) + 1)], 265, 120, false, false) end
-    if objects[17].active then ui.tile(resolveSpriteAsset("assets/prepared/wtt.png"), 68, 91, 79, false, false) end
+    if ActiveMapId == "map-1" then ui.map(authoredMap1Layer1) end
+    if ActiveMapId == "b57387a1-e895-463d-a55e-3aa4970caa8c" then ui.map(authoredMap2Layer1) end
+    if objects[1].map_id == ActiveMapId then
+        if objects[1].active and not objects[1].invisible then ui.rectfill(objects[1].x, objects[1].y, objects[1].x + objects[1].width, objects[1].y + objects[1].height, objects[1].color) end
+    end
+    if objects[2].map_id == ActiveMapId then
+    
+    end
+    if objects[3].map_id == ActiveMapId then
+        if objects[3].active and not objects[3].invisible then ui.rectfill(objects[3].x, objects[3].y, objects[3].x + objects[3].width, objects[3].y + objects[3].height, objects[3].color) end
+    end
+    if objects[4].map_id == ActiveMapId then
+        if objects[4].active and not objects[4].invisible then ui.trisfill(objects[4].x + objects[4].width / 2, objects[4].y, objects[4].x + objects[4].width, objects[4].y + objects[4].height, objects[4].x, objects[4].y + objects[4].height, objects[4].color) end
+    end
+    if objects[5].map_id == ActiveMapId then
+        if objects[5].active and not objects[5].invisible then ui.rectfill(objects[5].x, objects[5].y, objects[5].x + objects[5].width, objects[5].y + objects[5].height, objects[5].color) end
+    end
+    if objects[6].map_id == ActiveMapId then
+        if objects[6].active and not objects[6].invisible then ui.rectfill(objects[6].x, objects[6].y, objects[6].x + objects[6].width, objects[6].y + objects[6].height, objects[6].color) end
+    end
+    if objects[8].map_id == ActiveMapId then
+        if objects[8].active and not objects[8].invisible then ui.circfill(objects[8].x + objects[8].radius, objects[8].y + objects[8].radius, objects[8].radius, objects[8].color) end
+    end
+    if objects[10].map_id == ActiveMapId then
+        if objects[10].active and not objects[10].invisible then ui.rectfill(objects[10].x, objects[10].y, objects[10].x + objects[10].width, objects[10].y + objects[10].height, objects[10].color) end
+    end
+    if objects[13].map_id == ActiveMapId then
+    
+    end
+    if ActiveMapId == "map-1" then ui.map(authoredMap1Layer2) end
+    if objects[7].map_id == ActiveMapId then
+        if objects[7].active and not objects[7].invisible then ui.circfill(objects[7].x + objects[7].radius, objects[7].y + objects[7].radius, objects[7].radius, objects[7].color) end
+    end
+    if objects[9].map_id == ActiveMapId then
+        if objects[9].active and not objects[9].invisible then ui.circfill(objects[9].x + objects[9].radius, objects[9].y + objects[9].radius, objects[9].radius, objects[9].color) end
+    end
+    if ActiveMapId == "map-1" then if objects[14].active then ui.spr(resolveSpriteAsset("assets/created/grassblock.png"), 318, 137, false, false) end end
+    if ActiveMapId == "map-1" then ui.map(authoredMap1Layer3) end
+    if ActiveMapId == "b57387a1-e895-463d-a55e-3aa4970caa8c" then ui.map(authoredMap2Layer3) end
+    if ActiveMapId == "map-1" then ui.map(authoredMap1Layer4) end
+    if objects[11].map_id == ActiveMapId then
+        if objects[11].active and not objects[11].invisible then ui.circfill(objects[11].x + objects[11].radius, objects[11].y + objects[11].radius, objects[11].radius, objects[11].color) end
+    end
+    if objects[12].map_id == ActiveMapId then
+        if objects[12].active and not objects[12].invisible then ui.circfill(objects[12].x + objects[12].radius, objects[12].y + objects[12].radius, objects[12].radius, objects[12].color) end
+    end
+    if objects[15].map_id == ActiveMapId then if objects[15].active then if PlayerActionDraw then PlayerActionDraw(objects[15].x, objects[15].y) else ui.tile(resolveSpriteAsset("assets/prepared/kidle.png"), ({ 0, 1, 2, 3 })[((math.floor(frame / 8) % 4) + 1)], objects[15].x, objects[15].y, PlayerFacingLeft, false) end
+    if PlayerAttack.active and PlayerAttackDraw and PlayerAttack.hitbox then PlayerAttackDraw(PlayerAttack.x, PlayerAttack.y) end end end
+    if ActiveMapId == "map-1" then if objects[16].active then ui.spr(spriteFrames3[((math.floor(frame / 8) % #spriteFrames3) + 1)], 265, 120, false, false) end end
+    if ActiveMapId == "map-1" then if objects[17].active then ui.tile(resolveSpriteAsset("assets/prepared/wtt.png"), 68, 91, 79, false, false) end end
     ui.camera(0, 0)
     ui.print("Pontos: " .. tostring(PlayerScore), 8, 8, ASSET_PALETTE_SIZE + 7)
     for lifeIndex = 1, PlayerLives do ui.spr(resolveSpriteAsset("assets/player/main.png"), 8 + (lifeIndex - 1) * 16, 24) end
