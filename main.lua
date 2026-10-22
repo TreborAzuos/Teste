@@ -694,6 +694,7 @@ local ProjectMaps = {
 local ActiveMapId = "map-1"
 local ActiveMap = ProjectMaps[ActiveMapId]
 WORLD_WIDTH, WORLD_HEIGHT = ActiveMap.world_width, ActiveMap.world_height
+objects[15].map_id = ActiveMapId
 local InitialMapId = ActiveMapId
 local InitialObjectState = {}
 for index, object in ipairs(objects) do
